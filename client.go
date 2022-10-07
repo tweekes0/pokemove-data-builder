@@ -24,7 +24,7 @@ func getResponse(url string) ([]byte, error) {
 	return data, nil
 }
 
-func getMoveUrls(limit int, endpoint string) ([]string, error) {
+func getBasicMoveUrls(limit int, endpoint string) ([]string, error) {
 	var moveUrls []string
 	var basicResp BasicMoveResponse
 
