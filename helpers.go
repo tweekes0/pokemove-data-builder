@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/csv"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -36,13 +38,8 @@ func resolveVersionGroup(url string) int {
 	}
 }
 
-func moveResponseToStruct(data *VerboseMoveResponse) (PokeMove, error) {
+func moveResponseToStruct(data VerboseMoveResponse) (PokeMove, error) {
 	var move PokeMove
-
-	if data == nil {
-		return move, ErrResponseEmpty
-	}
-
 	move.MoveID = data.ID
 	move.Accuracy = data.Accuracy
 	move.Power = data.Power
@@ -54,7 +51,7 @@ func moveResponseToStruct(data *VerboseMoveResponse) (PokeMove, error) {
 	move.Description = ""
 
 	if len(data.EffectDescription) > 0 {
-		move.Description = data.EffectDescription[0].Effect
+		move.Description = data.EffectDescription[0].ShortEffect
 	}
 
 	return move, nil
@@ -81,4 +78,29 @@ func getGeneration(generation string) int {
 	default:
 		return -1
 	}
+}
+
+func createCsv(path string, entries []CsvEntry) (*os.File, error) {
+	csvFile, err := os.Create(path)
+	if err != nil {
+		return nil, err
+	}
+	defer csvFile.Close()
+
+	header := entries[0].GetHeader()
+	w := csv.NewWriter(csvFile)	
+	w.Comma = '|'
+	
+	if err = w.Write(header); err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if err = w.Write(entry.ToSlice()); err != nil {
+			return nil, err
+		}
+	}
+
+	w.Flush()
+	return csvFile, nil
 }
