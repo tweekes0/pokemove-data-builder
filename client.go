@@ -92,25 +92,21 @@ func getResponse(url string) ([]byte, error) {
 	if err != nil {
 		return data, err
 	}
+	defer resp.Body.Close()
 
 	return data, nil
 }
 
-func getBasicMoveUrls(limit int, endpoint string) ([]string, error) {
-	var moveUrls []string
+func getBasicMoveResponse(limit int, endpoint string) (BasicMoveResponse, error) {
 	var basicResp BasicMoveResponse
 
 	url := fmt.Sprintf("%v?limit=%v", endpoint, limit)
 
 	data, err := getResponse(url)
 	if err != nil {
-		return moveUrls, err
+		return basicResp, err
 	}
 	json.Unmarshal(data, &basicResp)
 
-	for _, res := range basicResp.Results {
-		moveUrls = append(moveUrls, res.Url)
-	}
-
-	return moveUrls, nil
+	return basicResp, nil
 }
