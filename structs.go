@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+	"sync"
+)
 
 type CsvEntry interface {
 	GetHeader() []string
@@ -48,4 +52,64 @@ func (p PokeMove) ToSlice() []string {
 	fields = append(fields, p.Description)
 
 	return fields
+}
+
+type MoveContainer struct {
+	// a slice of slices since the number of moves per response is variable
+	entries [][]PokeMove
+	moves   []PokeMove
+	wg      *sync.WaitGroup
+}
+
+func (c *MoveContainer) GetEntries(url, lang string, i int) {
+	resp := VerboseMoveResponse{}
+	moves := []PokeMove{}
+	data, _ := getResponse(url)
+
+	defer c.wg.Done()
+
+	json.Unmarshal(data, &resp)
+
+	gen := getGeneration(resp.Generation.Name)
+	if len(resp.PastValues) > 0 {
+		for _, value := range resp.PastValues {
+			oldMove, _ := moveResponseToStruct(resp, lang)
+
+			if value.Accuracy != 0 {
+				oldMove.Accuracy = value.Accuracy
+			}
+
+			if value.Power != 0 {
+				oldMove.Power = value.Power
+			}
+
+			if value.PowerPoints != 0 {
+				oldMove.PowerPoints = value.PowerPoints
+			}
+
+			if value.Type.Name != "" {
+				oldMove.Type = value.Type.Name
+			}
+
+			oldMove.Generation = gen
+			oldMove.Description = getFlavorText(gen, lang, resp.FlavorTexts)
+			gen = resolveVersionGroup(value.VersionGroup.Url)
+
+			moves = append(moves, oldMove)
+		}
+	}
+
+	move, _ := moveResponseToStruct(resp, lang)
+	move.Generation = gen
+	move.Description = getFlavorText(gen, lang, resp.FlavorTexts)
+
+	moves = append(moves, move)
+
+	c.entries[i] = moves
+}
+
+func (c *MoveContainer) FlattenEntries() {
+	for _, entry := range c.entries {
+		c.moves = append(c.moves, entry...)
+	}
 }
