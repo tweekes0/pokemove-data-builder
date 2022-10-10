@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	// "fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -10,11 +11,7 @@ import (
 // resolves the pokeapi version group to a generation number
 // https://pokeapi.co/docs/v2#versiongroup
 func resolveVersionGroup(url string) int {
-	group_id := strings.Split(url, "/")[6]
-	id, err := strconv.Atoi(group_id)
-	if err != nil {
-		return -1
-	}
+	id := getVersionGroupID(url)
 
 	switch id {
 	case 1, 2:
@@ -34,11 +31,11 @@ func resolveVersionGroup(url string) int {
 	case 20, 21, 22, 23, 24:
 		return 8
 	default:
-		return 9
+		return -1
 	}
 }
 
-func moveResponseToStruct(data VerboseMoveResponse) (PokeMove, error) {
+func moveResponseToStruct(data VerboseMoveResponse, lang string) (PokeMove, error) {
 	var move PokeMove
 	move.MoveID = data.ID
 	move.Accuracy = data.Accuracy
@@ -48,13 +45,33 @@ func moveResponseToStruct(data VerboseMoveResponse) (PokeMove, error) {
 	move.Type = data.Type.Name
 	move.DamageType = data.DamageType.Name
 	move.Generation = getGeneration(data.Generation.Name)
-	move.Description = ""
-
-	if len(data.EffectDescription) > 0 {
-		move.Description = data.EffectDescription[0].ShortEffect
-	}
 
 	return move, nil
+}
+
+func getFlavorText(gen int, lang string, texts []flavorText) string {
+	defaultText := getDefaultFlavorText(lang, texts)
+
+	for _, text := range texts {
+		id := resolveVersionGroup(text.VersionGroup.Url)
+		if gen == id && lang == text.Language.Name {
+			ret := strings.ReplaceAll(text.Text, "\n", " ")
+			return ret
+		}
+	}
+
+	return defaultText
+}
+
+func getDefaultFlavorText(lang string, texts []flavorText) string {
+	for _, text := range texts {
+		if lang == text.Language.Name {
+			ret := strings.ReplaceAll(text.Text, "\n", " ")
+			return ret
+		}
+	}
+
+	return ""
 }
 
 func getGeneration(generation string) int {
@@ -88,9 +105,9 @@ func createCsv(path string, entries []CsvEntry) (*os.File, error) {
 	defer csvFile.Close()
 
 	header := entries[0].GetHeader()
-	w := csv.NewWriter(csvFile)	
+	w := csv.NewWriter(csvFile)
 	w.Comma = '|'
-	
+
 	if err = w.Write(header); err != nil {
 		return nil, err
 	}
@@ -103,4 +120,14 @@ func createCsv(path string, entries []CsvEntry) (*os.File, error) {
 
 	w.Flush()
 	return csvFile, nil
+}
+
+func getVersionGroupID(url string) int {
+	group_id := strings.Split(url, "/")[6]
+	id, err := strconv.Atoi(group_id)
+	if err != nil {
+		return -1
+	}
+
+	return id
 }

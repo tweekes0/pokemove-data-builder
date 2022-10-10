@@ -14,12 +14,12 @@ type namedResource struct {
 	Url  string `json:"url"`
 }
 
-// struct for pokeapi VerboseEffect
-// https://pokeapi.co/docs/v2#VerboseEffect
-type verboseEffect struct {
-	Effect      string        `json:"effect"`
-	ShortEffect string        `json:"short_effect"`
-	Langauge    namedResource `json:"language"`
+// struct for pokeapi flavor text entries
+//https://pokeapi.co/docs/v2#moveflavortext
+type flavorText struct {
+	Text         string        `json:"flavor_text"`
+	Language     namedResource `json:"language"`
+	VersionGroup namedResource `json:"version_group"`
 }
 
 // struct for pokeapi pastMoveValues
@@ -31,9 +31,7 @@ type pastMoveValue struct {
 	PowerPoints   int             `json:"pp"`
 	Type          namedResource   `json:"type"`
 	VersionGroup  namedResource   `json:"version_group"`
-	EffectEntries []verboseEffect `json:"effect_entries"`
 }
-
 // interface to abstract MoveResponses types
 type MoveResponse interface {
 	Print()
@@ -58,16 +56,16 @@ func (r *BasicMoveResponse) Print() {
 // struct for pokeapi Move endpoint response
 // when given a parameter
 type VerboseMoveResponse struct {
-	ID                int             `json:"id"`
-	Accuracy          int             `json:"accuracy"`
-	Power             int             `json:"power"`
-	PowerPoints       int             `json:"pp"`
-	Name              string          `json:"name"`
-	DamageType        namedResource   `json:"damage_class"`
-	Type              namedResource   `json:"type"`
-	Generation        namedResource   `json:"generation"`
-	EffectDescription []verboseEffect `json:"effect_entries"`
-	PastValues        []pastMoveValue `json:"past_values"`
+	ID          int             `json:"id"`
+	Accuracy    int             `json:"accuracy"`
+	Power       int             `json:"power"`
+	PowerPoints int             `json:"pp"`
+	Name        string          `json:"name"`
+	DamageType  namedResource   `json:"damage_class"`
+	Type        namedResource   `json:"type"`
+	Generation  namedResource   `json:"generation"`
+	FlavorTexts []flavorText    `json:"flavor_text_entries"`
+	PastValues  []pastMoveValue `json:"past_values"`
 }
 
 func (r *VerboseMoveResponse) Print() {
