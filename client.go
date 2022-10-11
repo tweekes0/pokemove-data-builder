@@ -40,15 +40,6 @@ type basicResponse struct {
 	Results []namedResource `json:"results"`
 }
 
-func (r *basicResponse) Print() {
-	fmt.Printf("Count: %v\n", r.Count)
-	fmt.Println("Results:")
-	for _, r := range r.Results {
-		fmt.Printf("\tName:%v\n", r.Name)
-		fmt.Printf("\tUrl:%v\n", r.Url)
-	}
-}
-
 // struct for pokeapi Moves endpoint response
 type MoveResponse struct {
 	ID          int             `json:"id"`
@@ -63,28 +54,37 @@ type MoveResponse struct {
 	PastValues  []pastMoveValue `json:"past_values"`
 }
 
+// struct for pokeapi pokemom ability 
+// https://pokeapi.co/docs/v2#ability
 type pokemonAbility struct {
 	Hidden  bool          `json:"is_hidden"`
 	Slot    int           `json:"slot"`
 	Ability namedResource `json:"ability"`
 }
 
+// struct for pokeapi pokemom sprite 
+// https://pokeapi.co/docs/v2#pokemonsprites
 type pokemonSprite struct {
 	FrontDefault string                   `json:"front_default"`
 	Other        map[string]pokemonSprite `json:"other"`
 }
 
+// struct for pokeapi version group details for learned moves
+// https://pokeapi.co/docs/v2#pokemonmoveversion
 type versionGroupDetails struct {
 	LearnedLevel  int           `json:"level_learned_at"`
 	LearnedMethod namedResource `json:"move_learn_method"`
 	VersionGroup  namedResource `json:"version_group"`
 }
 
+// struct for pokeapi pokemon learned moves
+// https://pokeapi.co/docs/v2#pokemonmove
 type move struct {
 	Name    namedResource         `json:"move"`
 	Details []versionGroupDetails `json:"version_group_details"`
 }
 
+// struct for pokeapi Pokemon endpoint response
 type PokemonResponse struct {
 	ID        int              `json:"id"`
 	Name      string           `json:"name"`
