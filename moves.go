@@ -40,7 +40,7 @@ func (p PokemonMove) ToSlice() []string {
 	fields = append(fields, fmt.Sprintf("%v", p.Accuracy))
 	fields = append(fields, fmt.Sprintf("%v", p.Power))
 	fields = append(fields, fmt.Sprintf("%v", p.PowerPoints))
-	fields = append(fields, fmt.Sprintf("%v",p.Generation))
+	fields = append(fields, fmt.Sprintf("%v", p.Generation))
 	fields = append(fields, p.Name)
 	fields = append(fields, p.Type)
 	fields = append(fields, p.DamageType)
@@ -49,34 +49,17 @@ func (p PokemonMove) ToSlice() []string {
 	return fields
 }
 
-func MovesToCsv(path string, moves []PokemonMove) error {
-	entries := []CsvEntry{}
-	for _, moves := range moves {
-		entries = append(entries, moves)
-	}
-
-	if len(entries) == 0 {
-		return ErrEmptyCsv
-	}
-
-	if _, err := createCsv(path, entries); err != nil {
-		return err
-	}
-
-	return nil
-}	
-
 // api receive for the /moves endpoint
 type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
-	entries [][]PokemonMove
-	moves   []PokemonMove
-	wg      *sync.WaitGroup
+	entryMatrix [][]PokemonMove
+	entries     []PokemonMove
+	wg          *sync.WaitGroup
 }
 
 func (m *MovesReceiver) Init(n int) {
 	m.wg = new(sync.WaitGroup)
-	m.entries = make([][]PokemonMove, n) 
+	m.entryMatrix = make([][]PokemonMove, n)
 }
 
 func (m *MovesReceiver) AddWorker() {
@@ -86,6 +69,17 @@ func (m *MovesReceiver) AddWorker() {
 func (m *MovesReceiver) Wait() {
 	m.wg.Wait()
 }
+
+func (m *MovesReceiver) CsvEntries() []CsvEntry {
+	var e []CsvEntry
+	for _, entry := range m.entries {
+		e = append(e, entry)
+	}
+
+	return e
+}
+
+
 
 func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	resp := MoveResponse{}
@@ -131,12 +125,11 @@ func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 
 	moves = append(moves, move)
 
-	m.entries[i] = moves
+	m.entryMatrix[i] = moves
 }
 
 func (m *MovesReceiver) FlattenEntries() {
-	for _, entry := range m.entries {
-		m.moves = append(m.moves, entry...)
+	for _, entry := range m.entryMatrix {
+		m.entries = append(m.entries, entry...)
 	}
 }
-

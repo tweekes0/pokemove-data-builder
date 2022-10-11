@@ -124,7 +124,7 @@ func createDataDir() error {
 	return nil
 }
 
-func createCsv(path string, entries []CsvEntry) (*os.File, error) {
+func createCsv(path string) (*os.File, error) {
 	if err := createDataDir(); err != nil {
 		return nil, err
 	}
@@ -135,22 +135,17 @@ func createCsv(path string, entries []CsvEntry) (*os.File, error) {
 	}
 	defer csvFile.Close()
 
-	header := entries[0].GetHeader()
-	w := csv.NewWriter(csvFile)
+	return csvFile, nil
+}
+
+func writeCsvEntry(w *csv.Writer, entry CsvEntry) error {
 	w.Comma = '|'
 
-	if err = w.Write(header); err != nil {
-		return nil, err
+	if err := w.Write(entry.ToSlice()); err != nil {
+		return err
 	}
 
-	for _, entry := range entries {
-		if err = w.Write(entry.ToSlice()); err != nil {
-			return nil, err
-		}
-	}
-
-	w.Flush()
-	return csvFile, nil
+	return nil
 }
 
 func getVersionGroupID(url string) int {
@@ -161,4 +156,33 @@ func getVersionGroupID(url string) int {
 	}
 
 	return id
+}
+
+// func to write APIReceivers to a csv file
+func ToCsv(csvFile *os.File, recv APIReceiver) error {
+	if len(recv.CsvEntries()) == 0 {
+		return ErrEmptyCsv
+	}
+
+	file, err := os.OpenFile(csvFile.Name(), os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	w := csv.NewWriter(file)
+	w.Comma = '|'
+	defer w.Flush()
+
+	if err = w.Write(recv.CsvEntries()[0].GetHeader()); err != nil {
+		return err
+	}
+
+	for _, entry := range recv.CsvEntries() {
+		if err = writeCsvEntry(w, entry); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
