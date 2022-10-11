@@ -99,7 +99,7 @@ func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	gen := getGeneration(resp.Generation.Name)
 	if len(resp.PastValues) > 0 {
 		for _, value := range resp.PastValues {
-			oldMove, _ := moveResponseToStruct(resp, lang)
+			oldMove := moveResponseToStruct(resp, lang)
 
 			if value.Accuracy != 0 {
 				oldMove.Accuracy = value.Accuracy
@@ -125,7 +125,7 @@ func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 		}
 	}
 
-	move, _ := moveResponseToStruct(resp, lang)
+	move := moveResponseToStruct(resp, lang)
 	move.Generation = gen
 	move.Description = getFlavorText(gen, lang, resp.FlavorTexts)
 
@@ -140,21 +140,3 @@ func (m *MovesReceiver) FlattenEntries() {
 	}
 }
 
-func (m *MovesReceiver) GetAPIData(lang string) error {
-	basicResp, err := getBasicResponse(1000, MoveEndpoint)
-	if err != nil {
-		return err
-	}
-	
-	m.wg = new(sync.WaitGroup)
-	m.entries = make([][]PokemonMove, basicResp.Count)
-
-	for i := 0; i < basicResp.Count; i++ {
-		m.wg.Add(1)
-		go m.GetEntries(basicResp.Results[i].Url, lang, i)
-	}
-
-	m.wg.Wait()
-	m.FlattenEntries()
-	return nil
-}
