@@ -10,7 +10,7 @@ const (
 )
 
 type APIReceiver interface {
-	GetAPIData(string, string) error
+	GetAPIData(string) error
 }
 
 func main() { 
