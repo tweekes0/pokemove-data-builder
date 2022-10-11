@@ -57,7 +57,7 @@ type MoveContainer struct {
 }
 
 func (c *MoveContainer) GetEntries(url, lang string, i int) {
-	resp := VerboseMoveResponse{}
+	resp := MoveResponse{}
 	moves := []PokeMove{}
 	data, _ := getResponse(url)
 
