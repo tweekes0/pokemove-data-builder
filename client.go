@@ -33,14 +33,14 @@ type pastMoveValue struct {
 	VersionGroup  namedResource   `json:"version_group"`
 }
 
-// struct for pokeapi Move endpoint response
-// without a parameter
-type BasicMoveResponse struct {
+// struct for pokeapi endpoints when not supplied with
+// a parameter
+type BasicResponse struct {
 	Count   int             `json:"count"`
 	Results []namedResource `json:"results"`
 }
 
-func (r *BasicMoveResponse) Print() {
+func (r *BasicResponse) Print() {
 	fmt.Printf("Count: %v\n", r.Count)
 	fmt.Println("Results:")
 	for _, r := range r.Results {
@@ -49,9 +49,8 @@ func (r *BasicMoveResponse) Print() {
 	}
 }
 
-// struct for pokeapi Move endpoint response
-// when given a parameter
-type VerboseMoveResponse struct {
+// struct for pokeapi Moves endpoint response
+type MoveResponse struct {
 	ID          int             `json:"id"`
 	Accuracy    int             `json:"accuracy"`
 	Power       int             `json:"power"`
@@ -64,7 +63,7 @@ type VerboseMoveResponse struct {
 	PastValues  []pastMoveValue `json:"past_values"`
 }
 
-func (r *VerboseMoveResponse) Print() {
+func (r *MoveResponse) Print() {
 	fmt.Printf("Move ID: %v\n", r.ID)
 	fmt.Printf("Move Accuracy: %v\n", r.Accuracy)
 	fmt.Printf("Move Power: %v\n", r.Power)
@@ -91,8 +90,8 @@ func getResponse(url string) ([]byte, error) {
 	return data, nil
 }
 
-func getBasicMoveResponse(limit int, endpoint string) (BasicMoveResponse, error) {
-	var basicResp BasicMoveResponse
+func getBasicMoveResponse(limit int, endpoint string) (BasicResponse, error) {
+	var basicResp BasicResponse
 
 	url := fmt.Sprintf("%v?limit=%v", endpoint, limit)
 

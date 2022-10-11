@@ -40,7 +40,7 @@ func resolveVersionGroup(url string) int {
 	}
 }
 
-func moveResponseToStruct(data VerboseMoveResponse, lang string) (PokeMove, error) {
+func moveResponseToStruct(data MoveResponse, lang string) (PokeMove, error) {
 	var move PokeMove
 	move.MoveID = data.ID
 	move.Accuracy = data.Accuracy
