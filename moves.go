@@ -7,7 +7,7 @@ import (
 )
 
 // struct for pokemon move models
-type PokeMove struct {
+type PokemonMove struct {
 	MoveID      int
 	Accuracy    int
 	Power       int
@@ -19,7 +19,7 @@ type PokeMove struct {
 	Description string
 }
 
-func (p PokeMove) GetHeader() []string {
+func (p PokemonMove) GetHeader() []string {
 	var header []string
 	header = append(header, "moveID")
 	header = append(header, "accuracy")
@@ -34,7 +34,7 @@ func (p PokeMove) GetHeader() []string {
 	return header
 }
 
-func (p PokeMove) ToSlice() []string {
+func (p PokemonMove) ToSlice() []string {
 	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", p.MoveID))
 	fields = append(fields, fmt.Sprintf("%v", p.Accuracy))
@@ -49,17 +49,34 @@ func (p PokeMove) ToSlice() []string {
 	return fields
 }
 
+func MovesToCsv(path string, moves []PokemonMove) error {
+	entries := []CsvEntry{}
+	for _, moves := range moves {
+		entries = append(entries, moves)
+	}
+
+	if len(entries) == 0 {
+		return ErrEmptyCsv
+	}
+
+	if _, err := createCsv(path, entries); err != nil {
+		return err
+	}
+
+	return nil
+}	
+
 // api receive for the /moves endpoint
 type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
-	entries [][]PokeMove
-	moves   []PokeMove
+	entries [][]PokemonMove
+	moves   []PokemonMove
 	wg      *sync.WaitGroup
 }
 
 func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	resp := MoveResponse{}
-	moves := []PokeMove{}
+	moves := []PokemonMove{}
 	data, _ := getResponse(url)
 
 	defer m.wg.Done()
@@ -117,7 +134,7 @@ func (m *MovesReceiver) GetAPIData(lang string) error {
 	}
 	
 	m.wg = new(sync.WaitGroup)
-	m.entries = make([][]PokeMove, basicResp.Count)
+	m.entries = make([][]PokemonMove, basicResp.Count)
 
 	for i := 0; i < basicResp.Count; i++ {
 		m.wg.Add(1)

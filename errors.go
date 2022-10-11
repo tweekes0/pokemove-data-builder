@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 )
+
 var (
-	ErrResponseEmpty = errors.New("response empty")
+	ErrEmptyCsv        = errors.New("csv file cannot be empty")
+	ErrResponseEmpty   = errors.New("response empty")
 	ErrInvalidMoveResp = errors.New("move response is not valid")
 )

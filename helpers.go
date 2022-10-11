@@ -40,8 +40,8 @@ func resolveVersionGroup(url string) int {
 	}
 }
 
-func moveResponseToStruct(data MoveResponse, lang string) (PokeMove, error) {
-	var move PokeMove
+func moveResponseToStruct(data MoveResponse, lang string) (PokemonMove, error) {
+	var move PokemonMove
 	move.MoveID = data.ID
 	move.Accuracy = data.Accuracy
 	move.Power = data.Power
@@ -102,7 +102,24 @@ func getGeneration(generation string) int {
 	}
 }
 
+func createDataDir() error {
+	_, err := os.Stat("./data")
+	if err != nil {
+		if os.IsNotExist(err) {
+			if err = os.Mkdir("./data", 0755); err != nil { 
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func createCsv(path string, entries []CsvEntry) (*os.File, error) {
+	if err := createDataDir(); err != nil {
+		return nil, err
+	}
+
 	csvFile, err := os.Create(path)
 	if err != nil {
 		return nil, err
