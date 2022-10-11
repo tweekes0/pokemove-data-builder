@@ -2,11 +2,16 @@ package main
 
 import (
 	"encoding/csv"
-	// "fmt"
 	"os"
 	"strconv"
 	"strings"
 )
+
+// interface for writing structs to CSV files
+type CsvEntry interface {
+	GetHeader() []string
+	ToSlice() []string
+}
 
 // resolves the pokeapi version group to a generation number
 // https://pokeapi.co/docs/v2#versiongroup
