@@ -79,8 +79,6 @@ func (m *MovesReceiver) CsvEntries() []CsvEntry {
 	return e
 }
 
-
-
 func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	resp := MoveResponse{}
 	moves := []PokemonMove{}

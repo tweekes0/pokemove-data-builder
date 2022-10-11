@@ -58,7 +58,7 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 	var p Pokemon
 	p.PokeID = data.ID
 	p.Name = data.Name
-	p.Sprite = data.Sprite.Other["original-artwork"].FrontDefault
+	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
 
 	return p
 }

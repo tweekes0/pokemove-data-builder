@@ -19,7 +19,7 @@ type APIReceiver interface {
 }
 
 func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
-	basicResp, err := getBasicResponse(limit, MoveEndpoint)
+	basicResp, err := getBasicResponse(limit, endpoint)
 	if err != nil {
 		return err
 	}
@@ -38,19 +38,24 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 
 func main() { 
 	moves := MovesReceiver{}
-	// pokemon := PokemonReceiver{}
+	pokemon := PokemonReceiver{}
 	lang := "en"
-	limit := 1000
+	limit := 2000
 
 	if err := GetAPIData(&moves, limit, MoveEndpoint, lang); err != nil {
 		log.Fatal(err.Error())
 	}
 
-	// if err := GetAPIData(&pokemon, limit, PokemonEndpoint, lang); err != nil {
-	// 	log.Fatal(err.Error())
-	// }
+	if err := GetAPIData(&pokemon, limit, PokemonEndpoint, lang); err != nil {
+		log.Fatal(err.Error())
+	}
 
 	movesCsv, err := createCsv("./data/moves.csv")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	pokemonCsv, err := createCsv("./data/pokemon.csv")
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -59,4 +64,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	if err = ToCsv(pokemonCsv, &pokemon); err != nil {
+		log.Fatal(err.Error())
+	}
 }
