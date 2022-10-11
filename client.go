@@ -110,7 +110,7 @@ func getResponse(url string) ([]byte, error) {
 	return data, nil
 }
 
-func getBasicMoveResponse(limit int, endpoint string) (basicResponse, error) {
+func getBasicResponse(limit int, endpoint string) (basicResponse, error) {
 	var basicResp basicResponse
 
 	url := fmt.Sprintf("%v?limit=%v", endpoint, limit)

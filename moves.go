@@ -49,19 +49,20 @@ func (p PokeMove) ToSlice() []string {
 	return fields
 }
 
-type MoveContainer struct {
+// api receive for the /moves endpoint
+type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
 	entries [][]PokeMove
 	moves   []PokeMove
 	wg      *sync.WaitGroup
 }
 
-func (c *MoveContainer) GetEntries(url, lang string, i int) {
+func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	resp := MoveResponse{}
 	moves := []PokeMove{}
 	data, _ := getResponse(url)
 
-	defer c.wg.Done()
+	defer m.wg.Done()
 
 	json.Unmarshal(data, &resp)
 
@@ -100,11 +101,30 @@ func (c *MoveContainer) GetEntries(url, lang string, i int) {
 
 	moves = append(moves, move)
 
-	c.entries[i] = moves
+	m.entries[i] = moves
 }
 
-func (c *MoveContainer) FlattenEntries() {
-	for _, entry := range c.entries {
-		c.moves = append(c.moves, entry...)
+func (m *MovesReceiver) FlattenEntries() {
+	for _, entry := range m.entries {
+		m.moves = append(m.moves, entry...)
 	}
+}
+
+func (m *MovesReceiver) GetAPIData(lang string) error {
+	basicResp, err := getBasicResponse(1000, MoveEndpoint)
+	if err != nil {
+		return err
+	}
+	
+	m.wg = new(sync.WaitGroup)
+	m.entries = make([][]PokeMove, basicResp.Count)
+
+	for i := 0; i < basicResp.Count; i++ {
+		m.wg.Add(1)
+		go m.GetEntries(basicResp.Results[i].Url, lang, i)
+	}
+
+	m.wg.Wait()
+	m.FlattenEntries()
+	return nil
 }
