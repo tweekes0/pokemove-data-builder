@@ -10,12 +10,37 @@ const (
 )
 
 type APIReceiver interface {
-	GetAPIData(string) error
+	AddWorker()
+	FlattenEntries()
+	Init(int)
+	GetEntries(string, string, int)
+	Wait()
+}
+
+func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
+	basicResp, err := getBasicResponse(limit, MoveEndpoint)
+	if err != nil {
+		return err
+	}
+
+	recv.Init(basicResp.Count) 
+
+	for i := 0; i < basicResp.Count; i++ {
+		recv.AddWorker()
+		go recv.GetEntries(basicResp.Results[i].Url, lang, i)
+	}
+
+	recv.Wait()
+	recv.FlattenEntries()
+	return nil
 }
 
 func main() { 
 	moves := MovesReceiver{}
-	if err := moves.GetAPIData("en"); err != nil {
+	lang := "en"
+	limit := 1000
+
+	if err := GetAPIData(&moves, limit, MoveEndpoint, lang); err != nil {
 		log.Fatal(err.Error())
 	}
 

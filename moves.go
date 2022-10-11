@@ -74,6 +74,19 @@ type MovesReceiver struct {
 	wg      *sync.WaitGroup
 }
 
+func (m *MovesReceiver) Init(n int) {
+	m.wg = new(sync.WaitGroup)
+	m.entries = make([][]PokemonMove, n) 
+}
+
+func (m *MovesReceiver) AddWorker() {
+	m.wg.Add(1)
+}
+
+func (m *MovesReceiver) Wait() {
+	m.wg.Wait()
+}
+
 func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	resp := MoveResponse{}
 	moves := []PokemonMove{}
