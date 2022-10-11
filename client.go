@@ -32,10 +32,6 @@ type pastMoveValue struct {
 	Type          namedResource   `json:"type"`
 	VersionGroup  namedResource   `json:"version_group"`
 }
-// interface to abstract MoveResponses types
-type MoveResponse interface {
-	Print()
-}
 
 // struct for pokeapi Move endpoint response
 // without a parameter
