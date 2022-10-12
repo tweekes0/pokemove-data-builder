@@ -49,7 +49,21 @@ func (p PokemonMove) ToSlice() []string {
 	return fields
 }
 
-// api receive for the /moves endpoint
+func moveResponseToStruct(data MoveResponse, lang string) PokemonMove {
+	var move PokemonMove
+	move.MoveID = data.ID
+	move.Accuracy = data.Accuracy
+	move.Power = data.Power
+	move.PowerPoints = data.PowerPoints
+	move.Name = data.Name
+	move.Type = data.Type.Name
+	move.DamageType = data.DamageType.Name
+	move.Generation = getGeneration(data.Generation.Name)
+
+	return move
+}
+
+// struct that receives data from the pokeapi moves endpoint
 type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
 	entryMatrix [][]PokemonMove

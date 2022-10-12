@@ -40,29 +40,6 @@ func resolveVersionGroup(url string) int {
 	}
 }
 
-func moveResponseToStruct(data MoveResponse, lang string) PokemonMove {
-	var move PokemonMove
-	move.MoveID = data.ID
-	move.Accuracy = data.Accuracy
-	move.Power = data.Power
-	move.PowerPoints = data.PowerPoints
-	move.Name = data.Name
-	move.Type = data.Type.Name
-	move.DamageType = data.DamageType.Name
-	move.Generation = getGeneration(data.Generation.Name)
-
-	return move
-}
-
-func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
-	var p Pokemon
-	p.PokeID = data.ID
-	p.Name = data.Name
-	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
-
-	return p
-}
-
 func getFlavorText(gen int, lang string, texts []flavorText) string {
 	defaultText := getDefaultFlavorText(lang, texts)
 

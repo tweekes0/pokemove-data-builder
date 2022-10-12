@@ -54,7 +54,7 @@ type MoveResponse struct {
 	PastValues  []pastMoveValue `json:"past_values"`
 }
 
-// struct for pokeapi pokemom ability 
+// struct for pokeapi pokemom ability
 // https://pokeapi.co/docs/v2#ability
 type pokemonAbility struct {
 	Hidden  bool          `json:"is_hidden"`
@@ -62,7 +62,7 @@ type pokemonAbility struct {
 	Ability namedResource `json:"ability"`
 }
 
-// struct for pokeapi pokemom sprite 
+// struct for pokeapi pokemom sprite
 // https://pokeapi.co/docs/v2#pokemonsprites
 type pokemonSprite struct {
 	FrontDefault string                   `json:"front_default"`
@@ -88,9 +88,17 @@ type move struct {
 type PokemonResponse struct {
 	ID        int              `json:"id"`
 	Name      string           `json:"name"`
-	Abilities []pokemonAbility `json:"abilities"`
+	Species   namedResource    `json:"species"`
 	Sprite    pokemonSprite    `json:"sprites"`
+	Abilities []pokemonAbility `json:"abilities"`
 	Moves     []move           `json:"moves"`
+}
+
+type AbilityResponse struct {
+	ID          int          `json:"id"`
+	Generation  int          `json:"generation"`
+	Name        string       `json:"name"`
+	FlavorTexts []flavorText `json:"flavor_text_entries"`
 }
 
 func getResponse(url string) ([]byte, error) {

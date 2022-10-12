@@ -8,9 +8,10 @@ import (
 
 // struct for pokemon
 type Pokemon struct {
-	PokeID int
-	Name   string
-	Sprite string
+	PokeID  int
+	Name    string
+	Sprite  string
+	Species string
 }
 
 func (p Pokemon) GetHeader() []string {
@@ -18,17 +19,30 @@ func (p Pokemon) GetHeader() []string {
 	header = append(header, "pokeID")
 	header = append(header, "name")
 	header = append(header, "sprite")
+	header = append(header, "species")
 
 	return header
 }
 
 func (p Pokemon) ToSlice() []string {
-	var s []string 
+	var s []string
 	s = append(s, fmt.Sprintf("%v", p.PokeID))
 	s = append(s, p.Name)
+	s = append(s, p.Species)
 	s = append(s, p.Sprite)
 
 	return s
+}
+
+// struct that receives data from the pokeapi pokemon endpoint
+func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
+	var p Pokemon
+	p.PokeID = data.ID
+	p.Name = data.Name
+	p.Species = data.Species.Name
+	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
+
+	return p
 }
 
 type PokemonReceiver struct {
@@ -49,7 +63,7 @@ func (p *PokemonReceiver) Wait() {
 	p.wg.Wait()
 }
 
-func (p *PokemonReceiver) FlattenEntries() { }
+func (p *PokemonReceiver) FlattenEntries() {}
 
 func (p *PokemonReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry
@@ -69,6 +83,6 @@ func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
 	json.Unmarshal(data, &resp)
 
 	pokemon := pokemonResponseToStruct(resp, lang)
-	
+
 	p.entries[i] = pokemon
 }
