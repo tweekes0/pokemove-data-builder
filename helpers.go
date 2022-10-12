@@ -111,6 +111,16 @@ func getGeneration(generation string) int {
 	}
 }
 
+func getVersionGroupID(url string) int {
+	group_id := strings.Split(url, "/")[6]
+	id, err := strconv.Atoi(group_id)
+	if err != nil {
+		return -1
+	}
+
+	return id
+}
+
 func createDataDir() error {
 	_, err := os.Stat("./data")
 	if err != nil {
@@ -139,23 +149,11 @@ func createCsv(path string) (*os.File, error) {
 }
 
 func writeCsvEntry(w *csv.Writer, entry CsvEntry) error {
-	w.Comma = '|'
-
 	if err := w.Write(entry.ToSlice()); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func getVersionGroupID(url string) int {
-	group_id := strings.Split(url, "/")[6]
-	id, err := strconv.Atoi(group_id)
-	if err != nil {
-		return -1
-	}
-
-	return id
 }
 
 // func to write APIReceivers to a csv file
