@@ -72,8 +72,8 @@ type pokemonSprite struct {
 // struct for pokeapi version group details for learned moves
 // https://pokeapi.co/docs/v2#pokemonmoveversion
 type versionGroupDetails struct {
-	LearnedLevel  int           `json:"level_learned_at"`
-	LearnedMethod namedResource `json:"move_learn_method"`
+	LevelLearned  int           `json:"level_learned_at"`
+	MethodLearned namedResource `json:"move_learn_method"`
 	VersionGroup  namedResource `json:"version_group"`
 }
 
