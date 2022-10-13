@@ -54,7 +54,7 @@ type MoveResponse struct {
 	PastValues  []pastMoveValue `json:"past_values"`
 }
 
-// struct for pokeapi pokemom ability
+// struct for pokeapi pokemon ability
 // https://pokeapi.co/docs/v2#ability
 type pokemonAbility struct {
 	Hidden  bool          `json:"is_hidden"`
@@ -62,7 +62,7 @@ type pokemonAbility struct {
 	Ability namedResource `json:"ability"`
 }
 
-// struct for pokeapi pokemom sprite
+// struct for pokeapi pokemon sprite
 // https://pokeapi.co/docs/v2#pokemonsprites
 type pokemonSprite struct {
 	FrontDefault string                   `json:"front_default"`
