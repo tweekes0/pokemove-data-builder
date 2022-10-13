@@ -94,6 +94,7 @@ type PokemonResponse struct {
 	Moves     []move           `json:"moves"`
 }
 
+// struct for pokeapi Pokemon endpoint response
 type AbilityResponse struct {
 	ID          int          `json:"id"`
 	Generation  int          `json:"generation"`
