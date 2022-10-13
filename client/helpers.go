@@ -147,8 +147,8 @@ func writeCsvEntry(w *csv.Writer, entry CsvEntry) error {
 }
 
 // func to write APIReceivers to a csv file
-func ToCsv(csvFile *os.File, recv APIReceiver) error {
-	if len(recv.CsvEntries()) == 0 {
+func ToCsv(csvFile *os.File, entries []CsvEntry) error {
+	if len(entries) == 0 {
 		return ErrEmptyCsv
 	}
 
@@ -162,11 +162,11 @@ func ToCsv(csvFile *os.File, recv APIReceiver) error {
 	w.Comma = '|'
 	defer w.Flush()
 
-	if err = w.Write(recv.CsvEntries()[0].GetHeader()); err != nil {
+	if err = w.Write(entries[0].GetHeader()); err != nil {
 		return err
 	}
 
-	for _, entry := range recv.CsvEntries() {
+	for _, entry := range entries {
 		if err = writeCsvEntry(w, entry); err != nil {
 			return err
 		}
@@ -191,6 +191,6 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 
 	recv.Wait()
 	recv.PostProcess()
-	
+
 	return nil
 }
