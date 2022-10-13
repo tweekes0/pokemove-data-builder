@@ -25,13 +25,13 @@ func (p Pokemon) GetHeader() []string {
 }
 
 func (p Pokemon) ToSlice() []string {
-	var s []string
-	s = append(s, fmt.Sprintf("%v", p.PokeID))
-	s = append(s, p.Name)
-	s = append(s, p.Species)
-	s = append(s, p.Sprite)
+	var fields []string
+	fields = append(fields, fmt.Sprintf("%v", p.PokeID))
+	fields = append(fields, p.Name)
+	fields = append(fields, p.Species)
+	fields = append(fields, p.Sprite)
 
-	return s
+	return fields
 }
 
 // struct that receives data from the pokeapi pokemon endpoint
