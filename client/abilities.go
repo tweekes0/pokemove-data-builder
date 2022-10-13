@@ -18,7 +18,7 @@ func (a Ability) GetHeader() []string {
 	return header
 }
 
-func (a Ability) ToString() []string {
+func (a Ability) ToSlice() []string {
 	var fields []string
 	fields = append(fields, a.Name)
 	fields = append(fields, a.Description)
