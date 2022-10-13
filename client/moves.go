@@ -21,7 +21,7 @@ type PokemonMove struct {
 
 func (p PokemonMove) GetHeader() []string {
 	var header []string
-	header = append(header, "moveID")
+	header = append(header, "move-id")
 	header = append(header, "accuracy")
 	header = append(header, "power")
 	header = append(header, "pp")

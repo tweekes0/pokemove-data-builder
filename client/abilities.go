@@ -36,7 +36,7 @@ func (a AbilityMetadata) ToSlice() []string {
 
 // struct for pokemon abilities
 type Ability struct {
-	ID          int
+	AbilityID          int
 	Name        string
 	Description string
 	Generation  int
@@ -46,7 +46,7 @@ type Ability struct {
 
 func (a Ability) GetHeader() []string {
 	var header []string
-	header = append(header, "id")
+	header = append(header, "ability-id")
 	header = append(header, "name")
 	header = append(header, "description")
 	header = append(header, "generation")
@@ -56,7 +56,7 @@ func (a Ability) GetHeader() []string {
 
 func (a Ability) ToSlice() []string {
 	var fields []string
-	fields = append(fields, fmt.Sprintf("%v", a.ID))
+	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
 	fields = append(fields, a.Name)
 	fields = append(fields, a.Description)
 	fields = append(fields, fmt.Sprintf("%v", a.Generation))
@@ -66,7 +66,7 @@ func (a Ability) ToSlice() []string {
 
 func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 	var ability Ability
-	ability.ID = data.ID
+	ability.AbilityID = data.ID
 	ability.Name = data.Name
 	ability.MainSeries = data.MainSeries
 	ability.Generation = getGeneration(data.Generation.Name)
@@ -139,7 +139,7 @@ func (a *AbilityReceiver) GetRelations() []CsvEntry {
 	for _, a := range a.entries {
 		for _, p := range a.pokemon {
 			meta := AbilityMetadata{}
-			meta.AbilityID = a.ID
+			meta.AbilityID = a.AbilityID
 			meta.PokeID = getUrlID(p.Pokemon.Url)
 			meta.Hidden = p.Hidden
 			meta.Slot = p.Slot

@@ -16,7 +16,7 @@ type Pokemon struct {
 
 func (p Pokemon) GetHeader() []string {
 	var header []string
-	header = append(header, "pokeID")
+	header = append(header, "poke-id")
 	header = append(header, "name")
 	header = append(header, "sprite")
 	header = append(header, "species")
