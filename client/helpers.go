@@ -1,11 +1,22 @@
-package main
+package client
 
 import (
 	"encoding/csv"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+// interface for for structs that receive data from api
+type APIReceiver interface {
+	AddWorker()
+	FlattenEntries()
+	Init(int)
+	GetEntries(string, string, int)
+	Wait()
+	CsvEntries() []CsvEntry
+}
 
 // interface for writing structs to CSV files
 type CsvEntry interface {
@@ -98,11 +109,11 @@ func getVersionGroupID(url string) int {
 	return id
 }
 
-func createDataDir() error {
-	_, err := os.Stat("./data")
+func createDir(path string) error {
+	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if err = os.Mkdir("./data", 0755); err != nil { 
+			if err = os.MkdirAll(path, 0755); err != nil { 
 				return err
 			}
 		}
@@ -111,18 +122,20 @@ func createDataDir() error {
 	return nil
 }
 
-func createCsv(path string) (*os.File, error) {
-	if err := createDataDir(); err != nil {
+func CreateFile(dest, fname string) (*os.File, error) {
+	if err := createDir(dest); err != nil {
 		return nil, err
 	}
 
-	csvFile, err := os.Create(path)
+	fp := filepath.Join(dest, fname)
+
+	f, err := os.Create(fp)
 	if err != nil {
 		return nil, err
 	}
-	defer csvFile.Close()
+	defer f.Close()
 
-	return csvFile, nil
+	return f, nil
 }
 
 func writeCsvEntry(w *csv.Writer, entry CsvEntry) error {
@@ -159,5 +172,24 @@ func ToCsv(csvFile *os.File, recv APIReceiver) error {
 		}
 	}
 
+	return nil
+}
+
+// passes an APIReceiver that will concurrently fetch data from an endpoint
+func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
+	basicResp, err := getBasicResponse(limit, endpoint)
+	if err != nil {
+		return err
+	}
+
+	recv.Init(basicResp.Count) 
+
+	for i := 0; i < basicResp.Count; i++ {
+		recv.AddWorker()
+		go recv.GetEntries(basicResp.Results[i].Url, lang, i)
+	}
+
+	recv.Wait()
+	recv.FlattenEntries()
 	return nil
 }
