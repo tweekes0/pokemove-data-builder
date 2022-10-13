@@ -140,7 +140,7 @@ func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 	m.entryMatrix[i] = moves
 }
 
-func (m *MovesReceiver) FlattenEntries() {
+func (m *MovesReceiver) PostProcess() {
 	for _, entry := range m.entryMatrix {
 		m.entries = append(m.entries, entry...)
 	}

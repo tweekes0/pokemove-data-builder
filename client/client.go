@@ -98,6 +98,7 @@ type PokemonResponse struct {
 type AbilityResponse struct {
 	ID          int              `json:"id"`
 	Name        string           `json:"name"`
+	MainSeries  bool             `json:"is_main_series"`
 	Generation  namedResource    `json:"generation"`
 	FlavorTexts []flavorText     `json:"flavor_text_entries"`
 	Pokemon     []pokemonAbility `json:"pokemon"`

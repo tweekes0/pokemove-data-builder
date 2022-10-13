@@ -63,7 +63,7 @@ func (p *PokemonReceiver) Wait() {
 	p.wg.Wait()
 }
 
-func (p *PokemonReceiver) FlattenEntries() {}
+func (p *PokemonReceiver) PostProcess() {}
 
 func (p *PokemonReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry

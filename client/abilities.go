@@ -47,6 +47,7 @@ func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 	var ability Ability
 	ability.ID = data.ID
 	ability.Name = data.Name
+	ability.MainSeries = data.MainSeries
 	ability.Generation = getGeneration(data.Generation.Name)
 	ability.Description = getFlavorText(
 		ability.Generation,
@@ -84,7 +85,17 @@ func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 	return e
 }
 
-func (a *AbilityReceiver) FlattenEntries() {}
+func (a *AbilityReceiver) PostProcess() {
+	var ab []Ability
+
+	for _, ability := range a.entries {
+		if ability.MainSeries{
+			ab = append(ab, ability)
+		}
+	}
+
+	a.entries = ab
+}
 
 func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
 	resp := AbilityResponse{}

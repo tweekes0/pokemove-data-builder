@@ -11,7 +11,7 @@ import (
 // interface for for structs that receive data from api
 type APIReceiver interface {
 	AddWorker()
-	FlattenEntries()
+	PostProcess()
 	Init(int)
 	GetEntries(string, string, int)
 	Wait()
@@ -190,6 +190,7 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 	}
 
 	recv.Wait()
-	recv.FlattenEntries()
+	recv.PostProcess()
+	
 	return nil
 }
