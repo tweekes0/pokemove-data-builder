@@ -12,7 +12,13 @@ const (
 	PokemonEndpoint = "https://pokeapi.co/api/v2/pokemon"
 )
 
-func main() { 
+func handleError(err error) {
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func main() {
 	ability := client.AbilityReceiver{}
 	moves := client.MovesReceiver{}
 	pokemon := client.PokemonReceiver{}
@@ -20,42 +26,33 @@ func main() {
 	lang := "en"
 	limit := 2000
 
-	if err := client.GetAPIData(&moves, limit, MoveEndpoint, lang); err != nil {
-		log.Fatal(err.Error())
-	}
+	// fetch api data
+	err := client.GetAPIData(&moves, limit, MoveEndpoint, lang)
+	handleError(err)
 
-	if err := client.GetAPIData(&pokemon, limit, PokemonEndpoint, lang); err != nil {
-		log.Fatal(err.Error())
-	}
+	err = client.GetAPIData(&pokemon, limit, PokemonEndpoint, lang)
+	handleError(err)
 
-	if err := client.GetAPIData(&ability, limit, AbilityEndpoint, lang); err != nil {
-		log.Fatal(err.Error())
-	}
+	err = client.GetAPIData(&ability, limit, AbilityEndpoint, lang)
+	handleError(err)
 
+	// create csv files
 	movesCsv, err := client.CreateFile("./data/", "moves.csv")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	handleError(err)
 
 	pokemonCsv, err := client.CreateFile("./data/", "pokemon.csv")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	handleError(err)
 
 	abilityCsv, err := client.CreateFile("./data/", "ability.csv")
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	handleError(err)
 
-	if err = client.ToCsv(movesCsv, moves.CsvEntries()); err != nil {
-		log.Fatal(err.Error())
-	}
+	// write csv files
+	err = client.ToCsv(movesCsv, moves.CsvEntries())
+	handleError(err)
 
-	if err = client.ToCsv(pokemonCsv, pokemon.CsvEntries()); err != nil {
-		log.Fatal(err.Error())
-	}
+	err = client.ToCsv(pokemonCsv, pokemon.CsvEntries())
+	handleError(err)
 
-	if err = client.ToCsv(abilityCsv, ability.CsvEntries()); err != nil {
-		log.Fatal(err.Error())
-	}
+	err = client.ToCsv(abilityCsv, ability.CsvEntries())
+	handleError(err)
 }
