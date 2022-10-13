@@ -46,6 +46,9 @@ func main() {
 	abilityCsv, err := client.CreateFile("./data/", "ability.csv")
 	handleError(err)
 
+	abilityRelCsv, err := client.CreateFile("./data", "ability-relations.csv")
+	handleError(err)
+
 	// write csv files
 	err = client.ToCsv(movesCsv, moves.CsvEntries())
 	handleError(err)
@@ -54,5 +57,8 @@ func main() {
 	handleError(err)
 
 	err = client.ToCsv(abilityCsv, ability.CsvEntries())
+	handleError(err)
+
+	err = client.ToCsv(abilityRelCsv, ability.GetRelations())
 	handleError(err)
 }
