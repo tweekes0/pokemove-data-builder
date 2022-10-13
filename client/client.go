@@ -96,10 +96,11 @@ type PokemonResponse struct {
 
 // struct for pokeapi Pokemon endpoint response
 type AbilityResponse struct {
-	ID          int          `json:"id"`
-	Generation  int          `json:"generation"`
-	Name        string       `json:"name"`
-	FlavorTexts []flavorText `json:"flavor_text_entries"`
+	ID          int              `json:"id"`
+	Name        string           `json:"name"`
+	Generation  namedResource    `json:"generation"`
+	FlavorTexts []flavorText     `json:"flavor_text_entries"`
+	Pokemon     []pokemonAbility `json:"pokemon"`
 }
 
 func getResponse(url string) ([]byte, error) {
