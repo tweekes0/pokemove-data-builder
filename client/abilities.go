@@ -7,11 +7,31 @@ import (
 )
 
 // struct for meta data of pokemon abilities
-type AbilityMeta struct {
+type AbilityMetadata struct {
 	PokeID    int
-	AbilityId int
+	AbilityID int
 	Slot      int
 	Hidden    bool
+}
+
+func (a AbilityMetadata) GetHeader() []string {
+	var header []string 
+	header = append(header, "poke-id")
+	header = append(header, "ability-id")
+	header = append(header, "slot")
+	header = append(header, "hidden")
+
+	return header
+}
+
+func (a AbilityMetadata) ToSlice() []string {
+	var fields []string 
+	fields = append(fields, fmt.Sprintf("%v", a.PokeID))
+	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
+	fields = append(fields, fmt.Sprintf("%v", a.Slot))
+	fields = append(fields, fmt.Sprintf("%v", a.Hidden))
+
+	return fields
 }
 
 // struct for pokemon abilities
@@ -21,6 +41,7 @@ type Ability struct {
 	Description string
 	Generation  int
 	MainSeries  bool
+	pokemon     []pokemonAbility
 }
 
 func (a Ability) GetHeader() []string {
@@ -54,13 +75,14 @@ func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 		lang,
 		data.FlavorTexts,
 	)
+	ability.pokemon = data.Pokemon
 
 	return ability
 }
 
 type AbilityReceiver struct {
-	wg      *sync.WaitGroup
-	entries []Ability
+	wg        *sync.WaitGroup
+	entries   []Ability
 }
 
 func (a *AbilityReceiver) Init(n int) {
@@ -89,7 +111,7 @@ func (a *AbilityReceiver) PostProcess() {
 	var ab []Ability
 
 	for _, ability := range a.entries {
-		if ability.MainSeries{
+		if ability.MainSeries {
 			ab = append(ab, ability)
 		}
 	}
@@ -107,4 +129,26 @@ func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
 
 	ability := abilityResponseToStruct(resp, lang)
 	a.entries[i] = ability
+}
+
+// Gets the relationship of Ability to Pokemon 
+// and returns a slice of CsvEntries 
+func (a *AbilityReceiver) GetRelations() []CsvEntry {
+	rels := []CsvEntry{}
+
+	for _, a := range a.entries {
+		for _, p := range a.pokemon {
+			meta := AbilityMetadata{}
+			meta.AbilityID = a.ID
+			meta.PokeID = getUrlID(p.Pokemon.Url)
+			meta.Hidden = p.Hidden
+			meta.Slot = p.Slot
+
+			if meta.PokeID != -1 {
+				rels = append(rels, meta)
+			}
+		}
+	}
+
+	return rels
 }

@@ -27,7 +27,7 @@ type CsvEntry interface {
 // resolves the pokeapi version group to a generation number
 // https://pokeapi.co/docs/v2#versiongroup
 func resolveVersionGroup(url string) int {
-	id := getVersionGroupID(url)
+	id := getUrlID(url)
 
 	switch id {
 	case 1, 2:
@@ -99,9 +99,10 @@ func getGeneration(generation string) int {
 	}
 }
 
-func getVersionGroupID(url string) int {
-	group_id := strings.Split(url, "/")[6]
-	id, err := strconv.Atoi(group_id)
+// gets the id at the end of a pokeapi url
+func getUrlID(url string) int {
+	url_id := strings.Split(url, "/")[6]
+	id, err := strconv.Atoi(url_id)
 	if err != nil {
 		return -1
 	}
