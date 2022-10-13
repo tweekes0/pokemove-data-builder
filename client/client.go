@@ -55,11 +55,11 @@ type MoveResponse struct {
 }
 
 // struct for pokeapi pokemon ability
-// https://pokeapi.co/docs/v2#ability
+// https://pokeapi.co/docs/v2#abilitypokemon
 type pokemonAbility struct {
 	Hidden  bool          `json:"is_hidden"`
 	Slot    int           `json:"slot"`
-	Ability namedResource `json:"ability"`
+	Pokemon namedResource `json:"pokemon"`
 }
 
 // struct for pokeapi pokemon sprite
