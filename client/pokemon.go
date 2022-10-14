@@ -130,7 +130,7 @@ func (p *PokemonReceiver) GetRelations() []CsvEntry {
 	for _, pokemon := range p.entries {
 		for _, m := range pokemon.Moves {
 			for _, detail := range m.Details {
-				meta := PokemonMoveMetadata{}
+				var meta PokemonMoveMetadata
 				meta.PokeID = pokemon.PokeID
 				meta.MoveID = getUrlID(m.Name.Url)
 				meta.Generation = resolveVersionGroup(detail.VersionGroup.Url)

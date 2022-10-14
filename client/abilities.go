@@ -138,7 +138,7 @@ func (a *AbilityReceiver) GetRelations() []CsvEntry {
 
 	for _, a := range a.entries {
 		for _, p := range a.pokemon {
-			meta := AbilityMetadata{}
+			var meta AbilityMetadata
 			meta.AbilityID = a.AbilityID
 			meta.PokeID = getUrlID(p.Pokemon.Url)
 			meta.Hidden = p.Hidden
