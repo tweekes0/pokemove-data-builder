@@ -114,7 +114,7 @@ func createDir(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			if err = os.MkdirAll(path, 0755); err != nil { 
+			if err = os.MkdirAll(path, 0755); err != nil {
 				return err
 			}
 		}
@@ -183,7 +183,7 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 		return err
 	}
 
-	recv.Init(basicResp.Count) 
+	recv.Init(basicResp.Count)
 
 	for i := 0; i < basicResp.Count; i++ {
 		recv.AddWorker()

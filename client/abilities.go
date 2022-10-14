@@ -15,7 +15,7 @@ type AbilityMetadata struct {
 }
 
 func (a AbilityMetadata) GetHeader() []string {
-	var header []string 
+	var header []string
 	header = append(header, "poke-id")
 	header = append(header, "ability-id")
 	header = append(header, "slot")
@@ -25,7 +25,7 @@ func (a AbilityMetadata) GetHeader() []string {
 }
 
 func (a AbilityMetadata) ToSlice() []string {
-	var fields []string 
+	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", a.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
 	fields = append(fields, fmt.Sprintf("%v", a.Slot))
@@ -36,7 +36,7 @@ func (a AbilityMetadata) ToSlice() []string {
 
 // struct for pokemon abilities
 type Ability struct {
-	AbilityID          int
+	AbilityID   int
 	Name        string
 	Description string
 	Generation  int
@@ -81,8 +81,8 @@ func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 }
 
 type AbilityReceiver struct {
-	wg        *sync.WaitGroup
-	entries   []Ability
+	wg      *sync.WaitGroup
+	entries []Ability
 }
 
 func (a *AbilityReceiver) Init(n int) {
@@ -120,7 +120,7 @@ func (a *AbilityReceiver) PostProcess() {
 }
 
 func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
-	resp := AbilityResponse{}
+	var resp AbilityResponse
 	data, _ := getResponse(url)
 
 	defer a.wg.Done()
@@ -131,10 +131,10 @@ func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
 	a.entries[i] = ability
 }
 
-// Gets the relationship of Ability to Pokemon 
-// and returns a slice of CsvEntries 
+// Gets the relationship of Ability to Pokemon
+// and returns a slice of CsvEntries
 func (a *AbilityReceiver) GetRelations() []CsvEntry {
-	rels := []CsvEntry{}
+	var rels []CsvEntry
 
 	for _, a := range a.entries {
 		for _, p := range a.pokemon {

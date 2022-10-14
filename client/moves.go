@@ -94,8 +94,8 @@ func (m *MovesReceiver) CsvEntries() []CsvEntry {
 }
 
 func (m *MovesReceiver) GetEntries(url, lang string, i int) {
-	resp := MoveResponse{}
-	moves := []PokemonMove{}
+	var resp MoveResponse
+	var moves []PokemonMove
 	data, _ := getResponse(url)
 
 	defer m.wg.Done()

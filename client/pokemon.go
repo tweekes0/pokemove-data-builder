@@ -7,16 +7,16 @@ import (
 )
 
 type PokemonMoveMetadata struct {
-	PokeID       int
-	MoveID       int
-	Generation   int
-	LearnLevel int
-	LearnMethod  string
-	GameName     string
+	PokeID      int
+	MoveID      int
+	Generation  int
+	LearnLevel  int
+	LearnMethod string
+	GameName    string
 }
 
 func (p PokemonMoveMetadata) GetHeader() []string {
-	var header []string 
+	var header []string
 	header = append(header, "poke-id")
 	header = append(header, "move-id")
 	header = append(header, "generation")
@@ -28,7 +28,7 @@ func (p PokemonMoveMetadata) GetHeader() []string {
 }
 
 func (p PokemonMoveMetadata) ToSlice() []string {
-	var fields []string 
+	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", p.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", p.MoveID))
 	fields = append(fields, fmt.Sprintf("%v", p.Generation))
@@ -45,7 +45,7 @@ type Pokemon struct {
 	Name    string
 	Sprite  string
 	Species string
-	Moves []move
+	Moves   []move
 }
 
 func (p Pokemon) GetHeader() []string {
@@ -110,7 +110,7 @@ func (p *PokemonReceiver) CsvEntries() []CsvEntry {
 }
 
 func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
-	resp := PokemonResponse{}
+	var resp PokemonResponse
 	data, _ := getResponse(url)
 
 	defer p.wg.Done()
@@ -122,10 +122,10 @@ func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
 	p.entries[i] = pokemon
 }
 
-// Gets the relationship of Move to Pokemon 
-// and returns a slice of CsvEntries 
+// Gets the relationship of Move to Pokemon
+// and returns a slice of CsvEntries
 func (p *PokemonReceiver) GetRelations() []CsvEntry {
-	rels := []CsvEntry{}
+	var rels []CsvEntry
 
 	for _, pokemon := range p.entries {
 		for _, m := range pokemon.Moves {
@@ -137,7 +137,6 @@ func (p *PokemonReceiver) GetRelations() []CsvEntry {
 				meta.LearnLevel = detail.LevelLearned
 				meta.LearnMethod = detail.MethodLearned.Name
 				meta.GameName = detail.VersionGroup.Name
-
 
 				rels = append(rels, meta)
 			}
