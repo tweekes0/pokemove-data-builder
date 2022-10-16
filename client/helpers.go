@@ -10,9 +10,9 @@ import (
 
 // interface for for structs that receive data from api
 type APIReceiver interface {
+	Init(int)
 	AddWorker()
 	PostProcess()
-	Init(int)
 	GetEntries(string, string, int)
 	Wait()
 	CsvEntries() []CsvEntry
