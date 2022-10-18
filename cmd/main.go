@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/tweekes0/pokemonmoves-backend/client"
+	"github.com/tweekes0/pokemonmoves-backend/internal/client"
 )
 
 const (
