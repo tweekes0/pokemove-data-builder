@@ -82,12 +82,12 @@ func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 
 type AbilityReceiver struct {
 	wg      *sync.WaitGroup
-	entries []Ability
+	Entries []Ability
 }
 
 func (a *AbilityReceiver) Init(n int) {
 	a.wg = new(sync.WaitGroup)
-	a.entries = make([]Ability, n)
+	a.Entries = make([]Ability, n)
 }
 
 func (a *AbilityReceiver) AddWorker() {
@@ -100,7 +100,7 @@ func (a *AbilityReceiver) Wait() {
 
 func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry
-	for _, entry := range a.entries {
+	for _, entry := range a.Entries {
 		e = append(e, entry)
 	}
 
@@ -110,16 +110,16 @@ func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 func (a *AbilityReceiver) PostProcess() {
 	var ab []Ability
 
-	for _, ability := range a.entries {
+	for _, ability := range a.Entries {
 		if ability.MainSeries {
 			ab = append(ab, ability)
 		}
 	}
 
-	a.entries = ab
+	a.Entries = ab
 }
 
-func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
+func (a *AbilityReceiver) FetchEntries(url, lang string, i int) {
 	var resp AbilityResponse
 	data, _ := getResponse(url)
 
@@ -128,7 +128,7 @@ func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
 	json.Unmarshal(data, &resp)
 
 	ability := abilityResponseToStruct(resp, lang)
-	a.entries[i] = ability
+	a.Entries[i] = ability
 }
 
 // Gets the relationship of Ability to Pokemon
@@ -136,7 +136,7 @@ func (a *AbilityReceiver) GetEntries(url, lang string, i int) {
 func (a *AbilityReceiver) GetRelations() []CsvEntry {
 	var rels []CsvEntry
 
-	for _, a := range a.entries {
+	for _, a := range a.Entries {
 		for _, p := range a.pokemon {
 			var meta AbilityMetadata
 			meta.AbilityID = a.AbilityID

@@ -67,7 +67,7 @@ func moveResponseToStruct(data MoveResponse, lang string) PokemonMove {
 type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
 	entryMatrix [][]PokemonMove
-	entries     []PokemonMove
+	Entries     []PokemonMove
 	wg          *sync.WaitGroup
 }
 
@@ -86,14 +86,14 @@ func (m *MovesReceiver) Wait() {
 
 func (m *MovesReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry
-	for _, entry := range m.entries {
+	for _, entry := range m.Entries {
 		e = append(e, entry)
 	}
 
 	return e
 }
 
-func (m *MovesReceiver) GetEntries(url, lang string, i int) {
+func (m *MovesReceiver) FetchEntries(url, lang string, i int) {
 	var resp MoveResponse
 	var moves []PokemonMove
 	data, _ := getResponse(url)
@@ -142,6 +142,6 @@ func (m *MovesReceiver) GetEntries(url, lang string, i int) {
 
 func (m *MovesReceiver) PostProcess() {
 	for _, entry := range m.entryMatrix {
-		m.entries = append(m.entries, entry...)
+		m.Entries = append(m.Entries, entry...)
 	}
 }

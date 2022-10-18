@@ -82,12 +82,12 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 
 type PokemonReceiver struct {
 	wg      *sync.WaitGroup
-	entries []Pokemon
+	Entries []Pokemon
 }
 
 func (p *PokemonReceiver) Init(n int) {
 	p.wg = new(sync.WaitGroup)
-	p.entries = make([]Pokemon, n)
+	p.Entries = make([]Pokemon, n)
 }
 
 func (p *PokemonReceiver) AddWorker() {
@@ -102,14 +102,14 @@ func (p *PokemonReceiver) PostProcess() {}
 
 func (p *PokemonReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry
-	for _, entry := range p.entries {
+	for _, entry := range p.Entries {
 		e = append(e, entry)
 	}
 
 	return e
 }
 
-func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
+func (p *PokemonReceiver) FetchEntries(url, lang string, i int) {
 	var resp PokemonResponse
 	data, _ := getResponse(url)
 
@@ -119,7 +119,7 @@ func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
 
 	pokemon := pokemonResponseToStruct(resp, lang)
 
-	p.entries[i] = pokemon
+	p.Entries[i] = pokemon
 }
 
 // Gets the relationship of Move to Pokemon
@@ -127,7 +127,7 @@ func (p *PokemonReceiver) GetEntries(url, lang string, i int) {
 func (p *PokemonReceiver) GetRelations() []CsvEntry {
 	var rels []CsvEntry
 
-	for _, pokemon := range p.entries {
+	for _, pokemon := range p.Entries {
 		for _, m := range pokemon.Moves {
 			for _, detail := range m.Details {
 				var meta PokemonMoveMetadata

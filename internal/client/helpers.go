@@ -13,7 +13,7 @@ type APIReceiver interface {
 	Init(int)
 	AddWorker()
 	PostProcess()
-	GetEntries(string, string, int)
+	FetchEntries(string, string, int)
 	Wait()
 	CsvEntries() []CsvEntry
 }
@@ -187,7 +187,7 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 
 	for i := 0; i < basicResp.Count; i++ {
 		recv.AddWorker()
-		go recv.GetEntries(basicResp.Results[i].Url, lang, i)
+		go recv.FetchEntries(basicResp.Results[i].Url, lang, i)
 	}
 
 	recv.Wait()
