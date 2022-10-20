@@ -42,16 +42,17 @@ type basicResponse struct {
 
 // struct for pokeapi Moves endpoint response
 type MoveResponse struct {
-	ID          int             `json:"id"`
-	Accuracy    int             `json:"accuracy"`
-	Power       int             `json:"power"`
-	PowerPoints int             `json:"pp"`
-	Name        string          `json:"name"`
-	DamageType  namedResource   `json:"damage_class"`
-	Type        namedResource   `json:"type"`
-	Generation  namedResource   `json:"generation"`
-	FlavorTexts []flavorText    `json:"flavor_text_entries"`
-	PastValues  []pastMoveValue `json:"past_values"`
+	ID               int             `json:"id"`
+	Accuracy         int             `json:"accuracy"`
+	Power            int             `json:"power"`
+	PowerPoints      int             `json:"pp"`
+	Name             string          `json:"name"`
+	DamageType       namedResource   `json:"damage_class"`
+	Type             namedResource   `json:"type"`
+	Generation       namedResource   `json:"generation"`
+	LearnedByPokemon []namedResource `json:"learned_by_pokemon"`
+	FlavorTexts      []flavorText    `json:"flavor_text_entries"`
+	PastValues       []pastMoveValue `json:"past_values"`
 }
 
 // struct for pokeapi pokemon ability

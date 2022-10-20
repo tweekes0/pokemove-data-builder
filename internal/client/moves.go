@@ -127,7 +127,7 @@ func (m *MovesReceiver) FetchEntries(url, lang string, i int) {
 			oldMove.Description = getFlavorText(gen, lang, resp.FlavorTexts)
 			gen = resolveVersionGroup(value.VersionGroup.Url)
 
-			if oldMove.Description != "Dummy Data" {
+			if len(resp.LearnedByPokemon) > 0 {
 				moves = append(moves, oldMove)
 			}
 		}
@@ -137,7 +137,7 @@ func (m *MovesReceiver) FetchEntries(url, lang string, i int) {
 	move.Generation = gen
 	move.Description = getFlavorText(gen, lang, resp.FlavorTexts)
 
-	if move.Description != "Dummy Data" {
+	if len(resp.LearnedByPokemon) > 0 {
 		moves = append(moves, move)
 		m.entryMatrix[i] = moves
 	}
