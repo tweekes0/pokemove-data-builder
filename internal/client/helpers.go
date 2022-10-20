@@ -51,14 +51,33 @@ func resolveVersionGroup(url string) int {
 	}
 }
 
+func sanitizeString(s string) string {
+	ret := strings.ReplaceAll(s, "\n", " ")
+	ret = strings.ReplaceAll(ret, "\u00ad", "")
+	ret = strings.ReplaceAll(ret, "\u2019", "'")
+	ret = strings.ReplaceAll(ret, "- ", "-")
+	ret = strings.ReplaceAll(ret, "SPCL. ATK", "Sp. Atk")
+	ret = strings.ReplaceAll(ret, "SPCL. DEF", "Sp. Def")
+	ret = strings.ReplaceAll(ret, "SPCL.ATK", "Sp. Atk")
+	ret = strings.ReplaceAll(ret, "SPCL.DEF", "Sp. Def")
+	ret = strings.ReplaceAll(ret, "SP. ATK", "Sp. Atk")
+	ret = strings.ReplaceAll(ret, "SP. DEF", "Sp. Def")
+	ret = strings.ReplaceAll(ret, "ATTACK", "Attack")
+	ret = strings.ReplaceAll(ret, "DEFENSE", "Defense")
+	ret = strings.ReplaceAll(ret, "SPEED", "Speed")
+	ret = strings.ReplaceAll(ret, "physi cal", "physical")
+	ret = strings.ReplaceAll(ret, "criti cal", "critical")
+
+	return ret
+}
+
 func getFlavorText(gen int, lang string, texts []flavorText) string {
 	defaultText := getDefaultFlavorText(lang, texts)
 
 	for _, text := range texts {
 		id := resolveVersionGroup(text.VersionGroup.Url)
 		if gen == id && lang == text.Language.Name {
-			ret := strings.ReplaceAll(text.Text, "\n", " ")
-			return ret
+			return sanitizeString(text.Text)
 		}
 	}
 
@@ -68,8 +87,7 @@ func getFlavorText(gen int, lang string, texts []flavorText) string {
 func getDefaultFlavorText(lang string, texts []flavorText) string {
 	for _, text := range texts {
 		if lang == text.Language.Name {
-			ret := strings.ReplaceAll(text.Text, "\n", " ")
-			return ret
+			return sanitizeString(text.Text)
 		}
 	}
 
