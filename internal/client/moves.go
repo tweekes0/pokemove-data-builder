@@ -127,7 +127,9 @@ func (m *MovesReceiver) FetchEntries(url, lang string, i int) {
 			oldMove.Description = getFlavorText(gen, lang, resp.FlavorTexts)
 			gen = resolveVersionGroup(value.VersionGroup.Url)
 
-			moves = append(moves, oldMove)
+			if oldMove.Description != "Dummy Data" {
+				moves = append(moves, oldMove)
+			}
 		}
 	}
 
@@ -135,9 +137,10 @@ func (m *MovesReceiver) FetchEntries(url, lang string, i int) {
 	move.Generation = gen
 	move.Description = getFlavorText(gen, lang, resp.FlavorTexts)
 
-	moves = append(moves, move)
-
-	m.entryMatrix[i] = moves
+	if move.Description != "Dummy Data" {
+		moves = append(moves, move)
+		m.entryMatrix[i] = moves
+	}
 }
 
 func (m *MovesReceiver) PostProcess() {
