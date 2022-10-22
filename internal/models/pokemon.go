@@ -8,13 +8,13 @@ import (
 )
 
 const (
-	insert = `INSERT INTO pokemon(poke_id, name, sprite, species) 
+	pokemonInsert = `INSERT INTO pokemon(poke_id, name, sprite, species) 
 	VALUES ($1, $2, $3, $4)`
-	deleteByID  = `DELETE FROM pokemon WHERE poke_id = $1`
-	queryByID   = `SELECT poke_id, name, sprite, species FROM pokemon WHERE poke_id = $1`
-	queryByName = `SELECT poke_id, name, sprite, species FROM pokemon WHERE name = $1`
-	queryAll    = `SELECT poke_id, name, sprite, species FROM pokemon`
-	exists      = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
+	pokemonDelete      = `DELETE FROM pokemon WHERE poke_id = $1`
+	pokemonGetByID   = `SELECT poke_id, name, sprite, species FROM pokemon WHERE poke_id = $1`
+	pokemonGetByName = `SELECT poke_id, name, sprite, species FROM pokemon WHERE name = $1`
+	pokemonGetAll    = `SELECT poke_id, name, sprite, species FROM pokemon`
+	pokemonExists      = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
 )
 
 type PokemonModel struct {
@@ -22,7 +22,7 @@ type PokemonModel struct {
 }
 
 func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
-	_, err := m.DB.Exec(insert, p.PokeID, p.Name, p.Sprite, p.Species)
+	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (m *PokemonModel) PokemonBulkInsert(pokemon []client.Pokemon) error {
 }
 
 func (m *PokemonModel) PokemonDelete(pokeID int) error {
-	res, err := m.DB.Exec(deleteByID, pokeID)
+	res, err := m.DB.Exec(pokemonDelete, pokeID)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (m *PokemonModel) PokemonDelete(pokeID int) error {
 func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 	var e bool
 
-	err := m.DB.QueryRow(exists, pokeID).Scan(&e)
+	err := m.DB.QueryRow(pokemonExists, pokeID).Scan(&e)
 	if err != nil {
 		return false, err
 	}
@@ -80,12 +80,12 @@ func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
 
-	err := m.DB.QueryRow(queryByID, pokeID).Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species)
+	err := m.DB.QueryRow(pokemonGetByID, pokeID).Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrDoesNotExist
 		}
-		
+
 		return nil, err
 	}
 
@@ -95,7 +95,7 @@ func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
 func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	pokemon := []*client.Pokemon{}
 
-	rows, err := m.DB.Query(queryAll)
+	rows, err := m.DB.Query(pokemonGetAll)
 	if err != nil {
 		return nil, err
 	}
