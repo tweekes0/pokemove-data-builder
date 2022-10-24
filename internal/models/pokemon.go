@@ -117,3 +117,28 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 
 	return pokemon, nil
 }
+
+func (m *PokemonModel) MoveMetaBulkInsert(rels []client.PokemonMoveRelation) error {
+	tblInfo := []string {
+		"pokemon_move_metadata", "poke_id", "move_id", "generation",
+		"level_learned", "learn_method", "game_name", 
+	}
+	stmt, teardown := transactionSetup(m.DB, tblInfo)
+
+	for _, rel := range rels {
+		_, err := stmt.Exec(
+			rel.PokeID, rel.MoveID, rel.Generation, rel.LevelLearned, 
+			rel.LearnMethod, rel.GameName,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
