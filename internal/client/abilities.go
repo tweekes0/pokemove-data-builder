@@ -35,7 +35,7 @@ func (a AbilityMetadata) ToSlice() []string {
 }
 
 // struct for pokemon abilities
-type Ability struct {
+type PokemonAbility struct {
 	AbilityID   int
 	Name        string
 	Description string
@@ -44,7 +44,7 @@ type Ability struct {
 	pokemon     []pokemonAbility
 }
 
-func (a Ability) GetHeader() []string {
+func (a PokemonAbility) GetHeader() []string {
 	var header []string
 	header = append(header, "ability-id")
 	header = append(header, "name")
@@ -55,19 +55,19 @@ func (a Ability) GetHeader() []string {
 	return header
 }
 
-func (a Ability) ToSlice() []string {
+func (a PokemonAbility) ToSlice() []string {
 	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
 	fields = append(fields, a.Name)
 	fields = append(fields, a.Description)
 	fields = append(fields, fmt.Sprintf("%v", a.Generation))
 	fields = append(fields, fmt.Sprintf("%v", a.MainSeries))
-	
+
 	return fields
 }
 
-func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
-	var ability Ability
+func abilityResponseToStruct(data AbilityResponse, lang string) PokemonAbility {
+	var ability PokemonAbility
 	ability.AbilityID = data.ID
 	ability.Name = data.Name
 	ability.MainSeries = data.MainSeries
@@ -84,12 +84,12 @@ func abilityResponseToStruct(data AbilityResponse, lang string) Ability {
 
 type AbilityReceiver struct {
 	wg      *sync.WaitGroup
-	Entries []Ability
+	Entries []PokemonAbility
 }
 
 func (a *AbilityReceiver) Init(n int) {
 	a.wg = new(sync.WaitGroup)
-	a.Entries = make([]Ability, n)
+	a.Entries = make([]PokemonAbility, n)
 }
 
 func (a *AbilityReceiver) AddWorker() {
@@ -110,7 +110,7 @@ func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 }
 
 func (a *AbilityReceiver) PostProcess() {
-	var ab []Ability
+	var ab []PokemonAbility
 
 	for _, ability := range a.Entries {
 		if ability.MainSeries {
