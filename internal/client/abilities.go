@@ -7,14 +7,14 @@ import (
 )
 
 // struct for meta data of pokemon abilities
-type PokemonAbilityMetadata struct {
+type PokemonAbilityRelation struct {
 	PokeID    int
 	AbilityID int
 	Slot      int
 	Hidden    bool
 }
 
-func (a PokemonAbilityMetadata) GetHeader() []string {
+func (a PokemonAbilityRelation) GetHeader() []string {
 	var header []string
 	header = append(header, "poke-id")
 	header = append(header, "ability-id")
@@ -24,7 +24,7 @@ func (a PokemonAbilityMetadata) GetHeader() []string {
 	return header
 }
 
-func (a PokemonAbilityMetadata) ToSlice() []string {
+func (a PokemonAbilityRelation) ToSlice() []string {
 	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", a.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
@@ -83,7 +83,7 @@ func abilityResponseToStruct(data AbilityResponse, lang string) PokemonAbility {
 type AbilityReceiver struct {
 	wg        *sync.WaitGroup
 	Entries   []PokemonAbility
-	Relations []PokemonAbilityMetadata
+	Relations []PokemonAbilityRelation
 }
 
 func (a *AbilityReceiver) Init(n int) {
@@ -123,7 +123,7 @@ func (a *AbilityReceiver) PostProcess() {
 
 	for _, entry := range a.Entries {
 		for _, p := range entry.pokemon {
-			var meta PokemonAbilityMetadata
+			var meta PokemonAbilityRelation
 			meta.AbilityID = entry.AbilityID
 			meta.PokeID = getUrlID(p.Pokemon.Url)
 			meta.Hidden = p.Hidden
