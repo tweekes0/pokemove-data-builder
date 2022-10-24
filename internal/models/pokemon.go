@@ -10,11 +10,11 @@ import (
 const (
 	pokemonInsert = `INSERT INTO pokemon(poke_id, name, sprite, species) 
 	VALUES ($1, $2, $3, $4)`
-	pokemonDelete      = `DELETE FROM pokemon WHERE poke_id = $1`
+	pokemonDelete    = `DELETE FROM pokemon WHERE poke_id = $1`
 	pokemonGetByID   = `SELECT poke_id, name, sprite, species FROM pokemon WHERE poke_id = $1`
 	pokemonGetByName = `SELECT poke_id, name, sprite, species FROM pokemon WHERE name = $1`
 	pokemonGetAll    = `SELECT poke_id, name, sprite, species FROM pokemon`
-	pokemonExists      = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
+	pokemonExists    = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
 )
 
 type PokemonModel struct {
@@ -109,6 +109,10 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 		}
 
 		pokemon = append(pokemon, p)
+	}
+
+	if len(pokemon) == 0 {
+		return nil, ErrDoesNotExist
 	}
 
 	return pokemon, nil
