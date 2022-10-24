@@ -81,8 +81,9 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 }
 
 type PokemonReceiver struct {
-	wg      *sync.WaitGroup
-	Entries []Pokemon
+	wg        *sync.WaitGroup
+	Entries   []Pokemon
+	Relations []PokemonMoveMetadata
 }
 
 func (p *PokemonReceiver) Init(n int) {
@@ -98,7 +99,25 @@ func (p *PokemonReceiver) Wait() {
 	p.wg.Wait()
 }
 
-func (p *PokemonReceiver) PostProcess() {}
+// When all data is fetched from api populate
+// pokemon to move relationship slice
+func (p *PokemonReceiver) PostProcess() {
+	for _, pokemon := range p.Entries {
+		for _, m := range pokemon.Moves {
+			for _, detail := range m.Details {
+				var meta PokemonMoveMetadata
+				meta.PokeID = pokemon.PokeID
+				meta.MoveID = getUrlID(m.Name.Url)
+				meta.Generation = resolveVersionGroup(detail.VersionGroup.Url)
+				meta.LearnLevel = detail.LevelLearned
+				meta.LearnMethod = detail.MethodLearned.Name
+				meta.GameName = detail.VersionGroup.Name
+
+				p.Relations = append(p.Relations, meta)
+			}
+		}
+	}
+}
 
 func (p *PokemonReceiver) CsvEntries() []CsvEntry {
 	var e []CsvEntry
@@ -127,20 +146,8 @@ func (p *PokemonReceiver) FetchEntries(url, lang string, i int) {
 func (p *PokemonReceiver) GetRelations() []CsvEntry {
 	var rels []CsvEntry
 
-	for _, pokemon := range p.Entries {
-		for _, m := range pokemon.Moves {
-			for _, detail := range m.Details {
-				var meta PokemonMoveMetadata
-				meta.PokeID = pokemon.PokeID
-				meta.MoveID = getUrlID(m.Name.Url)
-				meta.Generation = resolveVersionGroup(detail.VersionGroup.Url)
-				meta.LearnLevel = detail.LevelLearned
-				meta.LearnMethod = detail.MethodLearned.Name
-				meta.GameName = detail.VersionGroup.Name
-
-				rels = append(rels, meta)
-			}
-		}
+	for _, rel := range p.Relations {
+		rels = append(rels, rel)
 	}
 
 	return rels
