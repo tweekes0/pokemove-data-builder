@@ -9,10 +9,10 @@ import (
 
 const (
 	abilityInsert = `INSERT INTO pokemon_abilities(ability_id, name,
-		description, generation, main_series) VALUES ($1, $2, $3, $4, $5)`
-	abilityGetById = `SELECT ability_id, name, description, generation, main_series 
+		description, generation) VALUES ($1, $2, $3, $4)`
+	abilityGetById = `SELECT ability_id, name, description, generation 
 	FROM pokemon_abilities WHERE ability_id = $1`
-	abilityGetAll = `SELECT ability_id, name, description, generation, main_series FROM pokemon_abilities`
+	abilityGetAll = `SELECT ability_id, name, description, generation FROM pokemon_abilities`
 )
 
 type AbilitiesModel struct {
@@ -22,7 +22,7 @@ type AbilitiesModel struct {
 func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
 	_, err := m.DB.Exec(
 		abilityInsert,
-		a.AbilityID, a.Name, a.Description, a.Generation, a.MainSeries,
+		a.AbilityID, a.Name, a.Description, a.Generation,
 	)
 
 	if err != nil {
@@ -35,14 +35,13 @@ func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
 func (m *AbilitiesModel) AbilityBulkInsert(ab []client.PokemonAbility) error {
 	tblInfo := []string{
 		"pokemon_abilities", "ability_id", "name", "description",
-		"generation", "main_series",
+		"generation",
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
 	for _, a := range ab {
 		_, err := stmt.Exec(
 			a.AbilityID, a.Name, a.Description, a.Generation,
-			a.MainSeries,
 		)
 
 		if err != nil {
@@ -61,7 +60,7 @@ func (m *AbilitiesModel) AbilityGet(a_id int) (*client.PokemonAbility, error) {
 	a := &client.PokemonAbility{}
 
 	err := m.DB.QueryRow(abilityGetById, a_id).Scan(
-		&a.AbilityID, &a.Name, &a.Description, &a.Generation, &a.MainSeries,
+		&a.AbilityID, &a.Name, &a.Description, &a.Generation,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -85,9 +84,7 @@ func (m *AbilitiesModel) AbilityGetAll() ([]*client.PokemonAbility, error) {
 	for rows.Next() {
 		a := client.PokemonAbility{}
 
-		err := rows.Scan(
-			&a.AbilityID, &a.Name, &a.Description, &a.Generation, &a.MainSeries,
-		)
+		err := rows.Scan(&a.AbilityID, &a.Name, &a.Description, &a.Generation,)
 
 		if err != nil {
 			return nil, err	
