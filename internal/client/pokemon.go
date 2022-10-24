@@ -10,7 +10,7 @@ type PokemonMoveMetadata struct {
 	PokeID      int
 	MoveID      int
 	Generation  int
-	LearnLevel  int
+	LevelLearned  int
 	LearnMethod string
 	GameName    string
 }
@@ -32,7 +32,7 @@ func (p PokemonMoveMetadata) ToSlice() []string {
 	fields = append(fields, fmt.Sprintf("%v", p.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", p.MoveID))
 	fields = append(fields, fmt.Sprintf("%v", p.Generation))
-	fields = append(fields, fmt.Sprintf("%v", p.LearnLevel))
+	fields = append(fields, fmt.Sprintf("%v", p.LevelLearned))
 	fields = append(fields, p.LearnMethod)
 	fields = append(fields, p.GameName)
 
@@ -109,7 +109,7 @@ func (p *PokemonReceiver) PostProcess() {
 				meta.PokeID = pokemon.PokeID
 				meta.MoveID = getUrlID(m.Name.Url)
 				meta.Generation = resolveVersionGroup(detail.VersionGroup.Url)
-				meta.LearnLevel = detail.LevelLearned
+				meta.LevelLearned = detail.LevelLearned
 				meta.LearnMethod = detail.MethodLearned.Name
 				meta.GameName = detail.VersionGroup.Name
 
