@@ -50,6 +50,7 @@ func (a Ability) GetHeader() []string {
 	header = append(header, "name")
 	header = append(header, "description")
 	header = append(header, "generation")
+	header = append(header, "main-series")
 
 	return header
 }
@@ -60,7 +61,8 @@ func (a Ability) ToSlice() []string {
 	fields = append(fields, a.Name)
 	fields = append(fields, a.Description)
 	fields = append(fields, fmt.Sprintf("%v", a.Generation))
-
+	fields = append(fields, fmt.Sprintf("%v", a.MainSeries))
+	
 	return fields
 }
 
