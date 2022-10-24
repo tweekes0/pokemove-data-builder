@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-type PokemonMoveMetadata struct {
+type PokemonMoveRelation struct {
 	PokeID      int
 	MoveID      int
 	Generation  int
@@ -15,7 +15,7 @@ type PokemonMoveMetadata struct {
 	GameName    string
 }
 
-func (p PokemonMoveMetadata) GetHeader() []string {
+func (p PokemonMoveRelation) GetHeader() []string {
 	var header []string
 	header = append(header, "poke-id")
 	header = append(header, "move-id")
@@ -27,7 +27,7 @@ func (p PokemonMoveMetadata) GetHeader() []string {
 	return header
 }
 
-func (p PokemonMoveMetadata) ToSlice() []string {
+func (p PokemonMoveRelation) ToSlice() []string {
 	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", p.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", p.MoveID))
@@ -83,7 +83,7 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 type PokemonReceiver struct {
 	wg        *sync.WaitGroup
 	Entries   []Pokemon
-	Relations []PokemonMoveMetadata
+	Relations []PokemonMoveRelation
 }
 
 func (p *PokemonReceiver) Init(n int) {
@@ -105,7 +105,7 @@ func (p *PokemonReceiver) PostProcess() {
 	for _, pokemon := range p.Entries {
 		for _, m := range pokemon.Moves {
 			for _, detail := range m.Details {
-				var meta PokemonMoveMetadata
+				var meta PokemonMoveRelation
 				meta.PokeID = pokemon.PokeID
 				meta.MoveID = getUrlID(m.Name.Url)
 				meta.Generation = resolveVersionGroup(detail.VersionGroup.Url)
