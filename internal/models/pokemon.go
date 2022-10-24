@@ -118,7 +118,7 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	return pokemon, nil
 }
 
-func (m *PokemonModel) MoveMetaBulkInsert(rels []client.PokemonMoveRelation) error {
+func (m *PokemonModel) MoveRelationsBulkInsert(rels []client.PokemonMoveRelation) error {
 	tblInfo := []string {
 		"pokemon_move_metadata", "poke_id", "move_id", "generation",
 		"level_learned", "learn_method", "game_name", 

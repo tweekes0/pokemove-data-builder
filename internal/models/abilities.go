@@ -84,14 +84,36 @@ func (m *AbilitiesModel) AbilityGetAll() ([]*client.PokemonAbility, error) {
 	for rows.Next() {
 		a := client.PokemonAbility{}
 
-		err := rows.Scan(&a.AbilityID, &a.Name, &a.Description, &a.Generation,)
+		err := rows.Scan(&a.AbilityID, &a.Name, &a.Description, &a.Generation)
 
 		if err != nil {
-			return nil, err	
+			return nil, err
 		}
 
 		abs = append(abs, &a)
 	}
 
 	return abs, nil
+}
+
+func (m *AbilitiesModel) AbilityRelationsBulkInsert(
+	rels []client.PokemonAbilityRelation) error {
+
+	tblInfo := []string{
+		"pokemon_ability_metadata", "poke_id", "ability_id", "slot", "hidden",
+	}
+	stmt, teardown := transactionSetup(m.DB, tblInfo)
+
+	for _, rel := range rels {	
+		_, err := stmt.Exec(rel.PokeID, rel.AbilityID, rel.Slot, rel.Hidden)
+		if err != nil {
+			return err
+		}
+	}
+	
+	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
 }
