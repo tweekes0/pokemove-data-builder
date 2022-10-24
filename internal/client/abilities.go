@@ -7,14 +7,14 @@ import (
 )
 
 // struct for meta data of pokemon abilities
-type AbilityMetadata struct {
+type PokemonAbilityMetadata struct {
 	PokeID    int
 	AbilityID int
 	Slot      int
 	Hidden    bool
 }
 
-func (a AbilityMetadata) GetHeader() []string {
+func (a PokemonAbilityMetadata) GetHeader() []string {
 	var header []string
 	header = append(header, "poke-id")
 	header = append(header, "ability-id")
@@ -24,7 +24,7 @@ func (a AbilityMetadata) GetHeader() []string {
 	return header
 }
 
-func (a AbilityMetadata) ToSlice() []string {
+func (a PokemonAbilityMetadata) ToSlice() []string {
 	var fields []string
 	fields = append(fields, fmt.Sprintf("%v", a.PokeID))
 	fields = append(fields, fmt.Sprintf("%v", a.AbilityID))
@@ -50,7 +50,6 @@ func (a PokemonAbility) GetHeader() []string {
 	header = append(header, "name")
 	header = append(header, "description")
 	header = append(header, "generation")
-	header = append(header, "main-series")
 
 	return header
 }
@@ -61,7 +60,6 @@ func (a PokemonAbility) ToSlice() []string {
 	fields = append(fields, a.Name)
 	fields = append(fields, a.Description)
 	fields = append(fields, fmt.Sprintf("%v", a.Generation))
-	fields = append(fields, fmt.Sprintf("%v", a.MainSeries))
 
 	return fields
 }
@@ -83,8 +81,9 @@ func abilityResponseToStruct(data AbilityResponse, lang string) PokemonAbility {
 }
 
 type AbilityReceiver struct {
-	wg      *sync.WaitGroup
-	Entries []PokemonAbility
+	wg        *sync.WaitGroup
+	Entries   []PokemonAbility
+	Relations []PokemonAbilityMetadata
 }
 
 func (a *AbilityReceiver) Init(n int) {
@@ -109,6 +108,8 @@ func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 	return e
 }
 
+// Add main series abilities to entries and 
+// populate the pokemon to ability relations slice
 func (a *AbilityReceiver) PostProcess() {
 	var ab []PokemonAbility
 
@@ -119,6 +120,20 @@ func (a *AbilityReceiver) PostProcess() {
 	}
 
 	a.Entries = ab
+
+	for _, entry := range a.Entries {
+		for _, p := range entry.pokemon {
+			var meta PokemonAbilityMetadata
+			meta.AbilityID = entry.AbilityID
+			meta.PokeID = getUrlID(p.Pokemon.Url)
+			meta.Hidden = p.Hidden
+			meta.Slot = p.Slot
+
+			if meta.PokeID != -1 {
+				a.Relations = append(a.Relations, meta)
+			}
+		}
+	}
 }
 
 func (a *AbilityReceiver) FetchEntries(url, lang string, i int) {
@@ -138,18 +153,8 @@ func (a *AbilityReceiver) FetchEntries(url, lang string, i int) {
 func (a *AbilityReceiver) GetRelations() []CsvEntry {
 	var rels []CsvEntry
 
-	for _, a := range a.Entries {
-		for _, p := range a.pokemon {
-			var meta AbilityMetadata
-			meta.AbilityID = a.AbilityID
-			meta.PokeID = getUrlID(p.Pokemon.Url)
-			meta.Hidden = p.Hidden
-			meta.Slot = p.Slot
-
-			if meta.PokeID != -1 {
-				rels = append(rels, meta)
-			}
-		}
+	for _, rel := range a.Relations {
+		rels = append(rels, rel)
 	}
 
 	return rels
