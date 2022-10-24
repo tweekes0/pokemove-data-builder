@@ -120,7 +120,7 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 
 func (m *PokemonModel) MoveRelationsBulkInsert(rels []client.PokemonMoveRelation) error {
 	tblInfo := []string {
-		"pokemon_move_metadata", "poke_id", "move_id", "generation",
+		"pokemon_move_rels", "poke_id", "move_id", "generation",
 		"level_learned", "learn_method", "game_name", 
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)

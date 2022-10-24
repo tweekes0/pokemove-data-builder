@@ -100,7 +100,7 @@ func (m *AbilitiesModel) AbilityRelationsBulkInsert(
 	rels []client.PokemonAbilityRelation) error {
 
 	tblInfo := []string{
-		"pokemon_ability_metadata", "poke_id", "ability_id", "slot", "hidden",
+		"pokemon_ability_rels", "poke_id", "ability_id", "slot", "hidden",
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
