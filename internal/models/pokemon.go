@@ -31,14 +31,19 @@ type PokemonModel struct {
 	DB *sql.DB
 }
 
-type moveData struct {
-	Move client.PokemonMove
-	Rel  client.PokemonMoveRelation
-}
-
-type MovesJoin struct {
-	Pokemon client.Pokemon
-	Moves   []moveData
+type MovesJoinRow struct {
+	ID           int
+	Accuracy     int
+	Power        int
+	PowerPoints  int
+	Generation   int
+	LevelLearned int
+	Name         string
+	Type         string
+	DamageType   string
+	Description  string
+	LearnMethod  string
+	GameName     string
 }
 
 func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
@@ -163,44 +168,29 @@ func (m *PokemonModel) MoveRelationsBulkInsert(rels []client.PokemonMoveRelation
 	return nil
 }
 
-func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) (*MovesJoin, error) {
-	mj := &MovesJoin{}
-
-	p, err := m.PokemonGet(pokeID)
-	if err != nil {
-		return nil, err
-	}
+func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) ([]*MovesJoinRow, error) {
+	mvs := []*MovesJoinRow{}
 
 	rows, err := m.DB.Query(pokemonMovesJoin, pokeID, gen)
 	if err != nil {
 		return nil, err
 	}
 
-	mvs := []moveData{}
 	for rows.Next() {
-		var mv client.PokemonMove
-		var rel client.PokemonMoveRelation
+		mv := &MovesJoinRow{}
 
 		err := rows.Scan(
-			&mv.MoveID, &mv.Name, &mv.Accuracy, &mv.Power, &mv.PowerPoints,
+			&mv.ID, &mv.Name, &mv.Accuracy, &mv.Power, &mv.PowerPoints,
 			&mv.Type, &mv.DamageType, &mv.Description,
-			&rel.LearnMethod, &rel.LevelLearned, &rel.GameName, &rel.Generation,
+			&mv.LearnMethod, &mv.LevelLearned, &mv.GameName, &mv.Generation,
 		)
 
 		if err != nil {
 			return nil, err
 		}
 
-		md := moveData{
-			Move: mv,
-			Rel:  rel,
-		}
-
-		mvs = append(mvs, md)
+		mvs = append(mvs, mv)
 	}
 
-	mj.Pokemon = *p
-	mj.Moves = mvs
-
-	return mj, nil
+	return mvs, nil
 }
