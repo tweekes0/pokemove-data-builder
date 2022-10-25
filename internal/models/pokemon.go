@@ -37,9 +37,8 @@ type moveData struct {
 }
 
 type MovesJoin struct {
-	P client.Pokemon
-
-	Moves []moveData
+	Pokemon client.Pokemon
+	Moves   []moveData
 }
 
 func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
@@ -194,13 +193,13 @@ func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) (*MovesJoin, error
 
 		md := moveData{
 			Move: mv,
-			Rel: rel,
+			Rel:  rel,
 		}
 
 		mvs = append(mvs, md)
 	}
 
-	mj.P = *p
+	mj.Pokemon = *p
 	mj.Moves = mvs
 
 	return mj, nil
