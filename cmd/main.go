@@ -18,6 +18,41 @@ func handleError(err error) {
 	}
 }
 
+func generateCsvs(
+	pr client.PokemonReceiver, mr client.MovesReceiver, ar client.AbilityReceiver) {
+	// create csv files
+	movesCsv, err := client.CreateFile("./data/", "moves.csv")
+	handleError(err)
+
+	pokemonCsv, err := client.CreateFile("./data/", "pokemon.csv")
+	handleError(err)
+
+	abilityCsv, err := client.CreateFile("./data/", "ability.csv")
+	handleError(err)
+
+	abilityRelCsv, err := client.CreateFile("./data", "ability-relations.csv")
+	handleError(err)
+
+	moveRelCsv, err := client.CreateFile("./data", "move-relations.csv")
+	handleError(err)
+
+	// write csv files
+	err = client.ToCsv(movesCsv, mr.CsvEntries())
+	handleError(err)
+
+	err = client.ToCsv(pokemonCsv, pr.CsvEntries())
+	handleError(err)
+
+	err = client.ToCsv(abilityCsv, ar.CsvEntries())
+	handleError(err)
+
+	err = client.ToCsv(abilityRelCsv, ar.GetRelations())
+	handleError(err)
+
+	err = client.ToCsv(moveRelCsv, pr.GetRelations())
+	handleError(err)
+}
+
 func main() {
 	ability := client.AbilityReceiver{}
 	moves := client.MovesReceiver{}
@@ -36,35 +71,5 @@ func main() {
 	err = client.GetAPIData(&ability, limit, AbilityEndpoint, lang)
 	handleError(err)
 
-	// create csv files
-	movesCsv, err := client.CreateFile("./data/", "moves.csv")
-	handleError(err)
-
-	pokemonCsv, err := client.CreateFile("./data/", "pokemon.csv")
-	handleError(err)
-
-	abilityCsv, err := client.CreateFile("./data/", "ability.csv")
-	handleError(err)
-
-	abilityRelCsv, err := client.CreateFile("./data", "ability-relations.csv")
-	handleError(err)
-
-	moveRelCsv, err := client.CreateFile("./data", "move-relations.csv")
-	handleError(err)
-
-	// write csv files
-	err = client.ToCsv(movesCsv, moves.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(pokemonCsv, pokemon.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(abilityCsv, ability.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(abilityRelCsv, ability.GetRelations())
-	handleError(err)
-
-	err = client.ToCsv(moveRelCsv, pokemon.GetRelations())
-	handleError(err)
+	// generateCsvs(pokemon, moves, ability)
 }
