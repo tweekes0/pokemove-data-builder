@@ -7,12 +7,12 @@ import (
 )
 
 type PokemonMoveRelation struct {
-	PokeID      int
-	MoveID      int
-	Generation  int
-	LevelLearned  int
-	LearnMethod string
-	GameName    string
+	PokeID       int
+	MoveID       int
+	Generation   int
+	LevelLearned int
+	LearnMethod  string
+	GameName     string
 }
 
 func (p PokemonMoveRelation) GetHeader() []string {
@@ -41,11 +41,11 @@ func (p PokemonMoveRelation) ToSlice() []string {
 
 // struct for pokemon
 type Pokemon struct {
-	PokeID  int
-	Name    string
-	Sprite  string
-	Species string
-	Moves   []move
+	PokeID  int    `json:"poke_id"`
+	Name    string `json:"name"`
+	Sprite  string `json:"sprite"`
+	Species string `json:"species"`
+	Moves   []move `json:"-"`
 }
 
 func (p Pokemon) GetHeader() []string {
