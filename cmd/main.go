@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/tweekes0/pokemonmoves-backend/internal/client"
+	"github.com/tweekes0/pokemonmoves-backend/internal/models"
 )
 
 const (
@@ -72,4 +73,8 @@ func main() {
 	handleError(err)
 
 	// generateCsvs(pokemon, moves, ability)
+
+	_, err = models.NewDBConn()
+	handleError(err)
+
 }

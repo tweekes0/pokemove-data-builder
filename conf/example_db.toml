@@ -1,0 +1,8 @@
+# Example toml file for database configuration
+# Rename this file to 'db.toml' or create a new file
+# with the name 'db.toml' in this directory.
+
+DatabaseName = "Name of your database"
+DatabaseUser = "User accessing the database"
+DatabasePassword = "Password for database user"
+SSLEnabled = false
