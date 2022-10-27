@@ -32,18 +32,18 @@ type PokemonModel struct {
 }
 
 type MovesJoinRow struct {
-	ID           int
-	Accuracy     int
-	Power        int
-	PowerPoints  int
-	Generation   int
-	LevelLearned int
-	Name         string
-	Type         string
-	DamageType   string
-	Description  string
-	LearnMethod  string
-	GameName     string
+	MoveID       int    `json:"id"`
+	Accuracy     int    `json:"accuracy"`
+	Power        int    `json:"power"`
+	PowerPoints  int    `json:"power_points"`
+	Generation   int    `json:"generation"`
+	LevelLearned int    `json:"level_learned"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	DamageType   string `json:"damage_type"`
+	Description  string `json:"description"`
+	LearnMethod  string `json:"learn_method"`
+	GameName     string `json:"game_name"`
 }
 
 func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
@@ -180,7 +180,7 @@ func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) ([]*MovesJoinRow, 
 		mv := &MovesJoinRow{}
 
 		err := rows.Scan(
-			&mv.ID, &mv.Name, &mv.Accuracy, &mv.Power, &mv.PowerPoints,
+			&mv.MoveID, &mv.Name, &mv.Accuracy, &mv.Power, &mv.PowerPoints,
 			&mv.Type, &mv.DamageType, &mv.Description,
 			&mv.LearnMethod, &mv.LevelLearned, &mv.GameName, &mv.Generation,
 		)

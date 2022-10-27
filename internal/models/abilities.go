@@ -29,12 +29,12 @@ type AbilitiesModel struct {
 }
 
 type AbilityJoinRow struct {
-	ID          int
-	Name        string
-	Description string
-	Generation  int
-	Slot        int
-	Hidden      bool
+	AbilityID   int    `json:"id"`
+	Generation  int    `json:"generation"`
+	Slot        int    `json:"slot"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Hidden      bool   `json:"hidden"`
 }
 
 func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
@@ -52,8 +52,7 @@ func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
 
 func (m *AbilitiesModel) AbilityBulkInsert(ab []client.PokemonAbility) error {
 	tblInfo := []string{
-		"pokemon_abilities", "ability_id", "name", "description",
-		"generation",
+		"pokemon_abilities", "ability_id", "name", "description", "generation",
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
@@ -147,7 +146,7 @@ func (m *AbilitiesModel) PokemonAbilitiesJoin(pokeID int) ([]*AbilityJoinRow, er
 	for rows.Next() {
 		ab := &AbilityJoinRow{}
 		err := rows.Scan(
-			&ab.ID, &ab.Name, &ab.Description,
+			&ab.AbilityID, &ab.Name, &ab.Description,
 			&ab.Generation, &ab.Slot, &ab.Hidden,
 		)
 
