@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/csv"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -212,4 +213,44 @@ func GetAPIData(recv APIReceiver, limit int, endpoint, lang string) error {
 	recv.PostProcess()
 
 	return nil
+}
+
+func GenerateCsvs(pr PokemonReceiver, mr MovesReceiver, ar AbilityReceiver) {
+	// create csv files
+	movesCsv, err := CreateFile("./data/", "moves.csv")
+	handleError(err)
+
+	pokemonCsv, err := CreateFile("./data/", "pokemon.csv")
+	handleError(err)
+
+	abilityCsv, err := CreateFile("./data/", "ability.csv")
+	handleError(err)
+
+	abilityRelCsv, err := CreateFile("./data", "ability-relations.csv")
+	handleError(err)
+
+	moveRelCsv, err := CreateFile("./data", "move-relations.csv")
+	handleError(err)
+
+	// write csv files
+	err = ToCsv(movesCsv, mr.CsvEntries())
+	handleError(err)
+
+	err = ToCsv(pokemonCsv, pr.CsvEntries())
+	handleError(err)
+
+	err = ToCsv(abilityCsv, ar.CsvEntries())
+	handleError(err)
+
+	err = ToCsv(abilityRelCsv, ar.GetRelations())
+	handleError(err)
+
+	err = ToCsv(moveRelCsv, pr.GetRelations())
+	handleError(err)
+}
+
+func handleError(err error) {
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
 }

@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/tweekes0/pokemonmoves-backend/internal/client"
-	"github.com/tweekes0/pokemonmoves-backend/internal/models"
 )
 
 const (
@@ -17,41 +16,6 @@ func handleError(err error) {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-}
-
-func generateCsvs(
-	pr client.PokemonReceiver, mr client.MovesReceiver, ar client.AbilityReceiver) {
-	// create csv files
-	movesCsv, err := client.CreateFile("./data/", "moves.csv")
-	handleError(err)
-
-	pokemonCsv, err := client.CreateFile("./data/", "pokemon.csv")
-	handleError(err)
-
-	abilityCsv, err := client.CreateFile("./data/", "ability.csv")
-	handleError(err)
-
-	abilityRelCsv, err := client.CreateFile("./data", "ability-relations.csv")
-	handleError(err)
-
-	moveRelCsv, err := client.CreateFile("./data", "move-relations.csv")
-	handleError(err)
-
-	// write csv files
-	err = client.ToCsv(movesCsv, mr.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(pokemonCsv, pr.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(abilityCsv, ar.CsvEntries())
-	handleError(err)
-
-	err = client.ToCsv(abilityRelCsv, ar.GetRelations())
-	handleError(err)
-
-	err = client.ToCsv(moveRelCsv, pr.GetRelations())
-	handleError(err)
 }
 
 func main() {
@@ -72,9 +36,6 @@ func main() {
 	err = client.GetAPIData(&ability, limit, AbilityEndpoint, lang)
 	handleError(err)
 
-	// generateCsvs(pokemon, moves, ability)
-
-	_, err = models.NewDBConn()
-	handleError(err)
-
+	// Generate CSV files of fetched API data
+	// client.generateCsvs(pokemon, moves, ability)
 }
