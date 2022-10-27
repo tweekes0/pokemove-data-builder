@@ -1,15 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/gin-gonic/gin"
+
 	"github.com/tweekes0/pokemonmoves-backend/internal/client"
+	"github.com/tweekes0/pokemonmoves-backend/internal/models"
+	"github.com/tweekes0/pokemonmoves-backend/internal/server"
 )
 
 const (
 	AbilityEndpoint = "https://pokeapi.co/api/v2/ability"
 	MoveEndpoint    = "https://pokeapi.co/api/v2/move"
 	PokemonEndpoint = "https://pokeapi.co/api/v2/pokemon"
+	ListenPort      = 8080
 )
 
 func handleError(err error) {
@@ -38,4 +44,15 @@ func main() {
 
 	// Generate CSV files of fetched API data
 	// client.generateCsvs(pokemon, moves, ability)
+
+	db, err := models.NewDBConn()
+	handleError(err)
+
+	gin.SetMode(gin.ReleaseMode)
+
+	srv := server.NewHttpServer()
+	server.SetupRoutes(srv, db)
+
+	log.Printf("Server running on port: %v\n", ListenPort)
+	srv.Run(fmt.Sprintf(":%v", ListenPort))
 }
