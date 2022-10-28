@@ -17,6 +17,7 @@ type APIReceiver interface {
 	FetchEntries(string, string, int)
 	Wait()
 	CsvEntries() []CsvEntry
+	GetEndpoint() string
 }
 
 // interface for writing structs to CSV files
@@ -253,4 +254,14 @@ func handleError(err error) {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+}
+
+func FetchData(limit int, lang string, recv ...APIReceiver) error {
+	for _, r := range recv {
+		if err := GetAPIData(r, limit, r.GetEndpoint(), lang); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

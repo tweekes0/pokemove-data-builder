@@ -84,6 +84,7 @@ type PokemonReceiver struct {
 	wg        *sync.WaitGroup
 	Entries   []Pokemon
 	Relations []PokemonMoveRelation
+	Endpoint  string
 }
 
 func (p *PokemonReceiver) Init(n int) {
@@ -97,6 +98,10 @@ func (p *PokemonReceiver) AddWorker() {
 
 func (p *PokemonReceiver) Wait() {
 	p.wg.Wait()
+}
+
+func (p *PokemonReceiver) GetEndpoint() string {
+	return p.Endpoint
 }
 
 // When all data is fetched from api populate

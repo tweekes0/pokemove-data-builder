@@ -84,6 +84,7 @@ type AbilityReceiver struct {
 	wg        *sync.WaitGroup
 	Entries   []PokemonAbility
 	Relations []PokemonAbilityRelation
+	Endpoint  string
 }
 
 func (a *AbilityReceiver) Init(n int) {
@@ -108,7 +109,7 @@ func (a *AbilityReceiver) CsvEntries() []CsvEntry {
 	return e
 }
 
-// Add main series abilities to entries and 
+// Add main series abilities to entries and
 // populate the pokemon to ability relations slice
 func (a *AbilityReceiver) PostProcess() {
 	var ab []PokemonAbility
@@ -158,4 +159,8 @@ func (a *AbilityReceiver) GetRelations() []CsvEntry {
 	}
 
 	return rels
+}
+
+func (a *AbilityReceiver) GetEndpoint() string {
+	return a.Endpoint
 }

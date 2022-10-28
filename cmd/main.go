@@ -15,7 +15,9 @@ const (
 	AbilityEndpoint = "https://pokeapi.co/api/v2/ability"
 	MoveEndpoint    = "https://pokeapi.co/api/v2/move"
 	PokemonEndpoint = "https://pokeapi.co/api/v2/pokemon"
+	APILimit        = 2000
 	ListenPort      = 8080
+	Language        = "en"
 )
 
 func handleError(err error) {
@@ -25,26 +27,16 @@ func handleError(err error) {
 }
 
 func main() {
-	ability := client.AbilityReceiver{}
-	moves := client.MovesReceiver{}
-	pokemon := client.PokemonReceiver{}
-
-	lang := "en"
-	limit := 2000
+	ability := client.AbilityReceiver{Endpoint: AbilityEndpoint}
+	moves := client.MovesReceiver{Endpoint: MoveEndpoint}
+	pokemon := client.PokemonReceiver{Endpoint: PokemonEndpoint}
 
 	// fetch api data
-	err := client.GetAPIData(&moves, limit, MoveEndpoint, lang)
-	handleError(err)
-
-	err = client.GetAPIData(&pokemon, limit, PokemonEndpoint, lang)
-	handleError(err)
-
-	err = client.GetAPIData(&ability, limit, AbilityEndpoint, lang)
+	err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
 	handleError(err)
 
 	// Generate CSV files of fetched API data
 	// client.generateCsvs(pokemon, moves, ability)
-
 	db, err := models.NewDBConn()
 	handleError(err)
 

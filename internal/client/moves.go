@@ -66,9 +66,10 @@ func moveResponseToStruct(data MoveResponse, lang string) PokemonMove {
 // struct that receives data from the pokeapi moves endpoint
 type MovesReceiver struct {
 	// a slice of slices since the number of moves per response is variable
+	wg          *sync.WaitGroup
 	entryMatrix [][]PokemonMove
 	Entries     []PokemonMove
-	wg          *sync.WaitGroup
+	Endpoint    string
 }
 
 func (m *MovesReceiver) Init(n int) {
@@ -147,4 +148,8 @@ func (m *MovesReceiver) PostProcess() {
 	for _, entry := range m.entryMatrix {
 		m.Entries = append(m.Entries, entry...)
 	}
+}
+
+func (m *MovesReceiver) GetEndpoint() string {
+	return m.Endpoint
 }
