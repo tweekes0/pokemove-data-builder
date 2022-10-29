@@ -45,7 +45,7 @@ func NewDBConn() (*DBConn, error) {
 	}, nil
 }
 
-func (c *DBConn) checkDB() (bool, error) {	
+func (c *DBConn) CheckDB() (bool, error) {	
 	var count int
 
 	if err := c.QueryRow(countQuery).Scan(&count); err != nil {
@@ -60,21 +60,12 @@ func (c *DBConn) checkDB() (bool, error) {
 }
 
 func (c *DBConn) PopulateDB(recv ...client.APIReceiver) error {
-	ok, err := c.checkDB()
-	if err != nil {
-		return err
-	}
-
-	if ok {
-		return nil
-	}
-
 	for i, m := range c.getModels() {
-		if err = m.BulkInsert(recv[i].GetEntries()); err != nil {
+		if err := m.BulkInsert(recv[i].GetEntries()); err != nil {
 			return err
 		}
 
-		if err = m.RelationsBulkInsert(recv[i].GetRelations()); err != nil {
+		if err := m.RelationsBulkInsert(recv[i].GetRelations()); err != nil {
 			return err
 		}
 	}

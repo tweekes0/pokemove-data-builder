@@ -26,21 +26,31 @@ func handleError(err error) {
 	}
 }
 
-func main() {
-	ability := client.AbilityReceiver{Endpoint: AbilityEndpoint}
-	moves := client.MovesReceiver{Endpoint: MoveEndpoint}
-	pokemon := client.PokemonReceiver{Endpoint: PokemonEndpoint}
-
-	// fetch api data
-	err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
-	handleError(err)
-
-	// establish db connection
+func initialize() *models.DBConn {
 	db, err := models.NewDBConn()
 	handleError(err)
 
-	err = db.PopulateDB(&ability, &moves, &pokemon)
+	populated, err := db.CheckDB()
 	handleError(err)
+
+	if !populated {
+		ability := client.AbilityReceiver{Endpoint: AbilityEndpoint}
+		moves := client.MovesReceiver{Endpoint: MoveEndpoint}
+		pokemon := client.PokemonReceiver{Endpoint: PokemonEndpoint}
+
+		// fetch api data
+		err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
+		handleError(err)
+		
+		err = db.PopulateDB(&ability, &moves, &pokemon)
+		handleError(err)
+	}
+
+	return db
+}
+
+func main() {
+	db := initialize()
 
 	gin.SetMode(gin.ReleaseMode)
 	srv := server.NewHttpServer()
