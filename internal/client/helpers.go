@@ -18,6 +18,7 @@ type APIReceiver interface {
 	Wait()
 	CsvEntries() []CsvEntry
 	GetEndpoint() string
+	GetEntries() []interface{}
 }
 
 // interface for writing structs to CSV files

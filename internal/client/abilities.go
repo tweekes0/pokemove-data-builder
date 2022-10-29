@@ -164,3 +164,13 @@ func (a *AbilityReceiver) GetRelations() []CsvEntry {
 func (a *AbilityReceiver) GetEndpoint() string {
 	return a.Endpoint
 }
+
+func (a *AbilityReceiver) GetEntries() []interface{} {
+	var entries []interface{}
+
+	for _, e := range a.Entries {
+		entries = append(entries, e)
+	}
+
+	return entries
+}

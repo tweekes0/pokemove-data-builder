@@ -157,3 +157,13 @@ func (p *PokemonReceiver) GetRelations() []CsvEntry {
 
 	return rels
 }
+
+func (p *PokemonReceiver) GetEntries() []interface{} {
+	var entries []interface{}
+
+	for _, e := range p.Entries {
+		entries = append(entries, e)
+	}
+
+	return entries
+}

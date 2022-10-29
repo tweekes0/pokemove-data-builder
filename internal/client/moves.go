@@ -153,3 +153,13 @@ func (m *MovesReceiver) PostProcess() {
 func (m *MovesReceiver) GetEndpoint() string {
 	return m.Endpoint
 }
+
+func (m *MovesReceiver) GetEntries() []interface{} {
+	var entries []interface{}
+
+	for _, e := range m.Entries {
+		entries = append(entries, e)
+	}
+
+	return entries
+}
