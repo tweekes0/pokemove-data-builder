@@ -68,6 +68,31 @@ func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 }
 
 func (m *PokemonModel) RelationsBulkInsert(rels []interface{}) error {
+	tblInfo := []string{
+		"pokemon_move_rels", "poke_id", "move_id", "generation",
+		"level_learned", "learn_method", "game_name",
+	}
+	stmt, teardown := transactionSetup(m.DB, tblInfo)
+
+	for _, rel := range rels {
+		_, err := stmt.Exec(
+			rel.(client.PokemonMoveRelation).PokeID, 
+			rel.(client.PokemonMoveRelation).MoveID, 
+			rel.(client.PokemonMoveRelation).Generation,
+			rel.(client.PokemonMoveRelation).LevelLearned,
+			rel.(client.PokemonMoveRelation).LearnMethod, 
+			rel.(client.PokemonMoveRelation).GameName,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := teardown(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
