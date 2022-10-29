@@ -163,3 +163,8 @@ func (m *MovesReceiver) GetEntries() []interface{} {
 
 	return entries
 }
+
+func (m *MovesReceiver) GetRelations() []interface{} {
+	var i []interface{}
+	return i
+}

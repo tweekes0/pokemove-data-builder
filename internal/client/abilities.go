@@ -151,7 +151,7 @@ func (a *AbilityReceiver) FetchEntries(url, lang string, i int) {
 
 // Gets the relationship of Ability to Pokemon
 // and returns a slice of CsvEntries
-func (a *AbilityReceiver) GetRelations() []CsvEntry {
+func (a *AbilityReceiver) GetCsvRelations() []CsvEntry {
 	var rels []CsvEntry
 
 	for _, rel := range a.Relations {
@@ -173,4 +173,14 @@ func (a *AbilityReceiver) GetEntries() []interface{} {
 	}
 
 	return entries
+}
+
+func (a *AbilityReceiver) GetRelations() []interface{} {
+	var rels []interface{} 
+
+	for _, r := range a.Relations {
+		rels = append(rels, r)
+	}
+
+	return rels
 }

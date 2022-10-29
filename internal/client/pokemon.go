@@ -148,7 +148,7 @@ func (p *PokemonReceiver) FetchEntries(url, lang string, i int) {
 
 // Gets the relationship of Move to Pokemon
 // and returns a slice of CsvEntries
-func (p *PokemonReceiver) GetRelations() []CsvEntry {
+func (p *PokemonReceiver) GetCsvRelations() []CsvEntry {
 	var rels []CsvEntry
 
 	for _, rel := range p.Relations {
@@ -166,4 +166,14 @@ func (p *PokemonReceiver) GetEntries() []interface{} {
 	}
 
 	return entries
+}
+
+func (p *PokemonReceiver) GetRelations() []interface{} {
+	var rels []interface{}
+
+	for _, r := range p.Relations {
+		rels = append(rels, r)
+	}
+
+	return rels
 }

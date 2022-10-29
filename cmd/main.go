@@ -35,13 +35,14 @@ func main() {
 	err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
 	handleError(err)
 
-	// Generate CSV files of fetched API data
-	// client.generateCsvs(pokemon, moves, ability)
+	// establish db connection
 	db, err := models.NewDBConn()
 	handleError(err)
 
-	gin.SetMode(gin.ReleaseMode)
+	err = db.PopulateDB(&ability, &moves, &pokemon)
+	handleError(err)
 
+	gin.SetMode(gin.ReleaseMode)
 	srv := server.NewHttpServer()
 	server.SetupRoutes(srv, db)
 

@@ -19,6 +19,7 @@ type APIReceiver interface {
 	CsvEntries() []CsvEntry
 	GetEndpoint() string
 	GetEntries() []interface{}
+	GetRelations() []interface{}
 }
 
 // interface for writing structs to CSV files
@@ -244,10 +245,10 @@ func GenerateCsvs(pr PokemonReceiver, mr MovesReceiver, ar AbilityReceiver) {
 	err = ToCsv(abilityCsv, ar.CsvEntries())
 	handleError(err)
 
-	err = ToCsv(abilityRelCsv, ar.GetRelations())
+	err = ToCsv(abilityRelCsv, ar.GetCsvRelations())
 	handleError(err)
 
-	err = ToCsv(moveRelCsv, pr.GetRelations())
+	err = ToCsv(moveRelCsv, pr.GetCsvRelations())
 	handleError(err)
 }
 
