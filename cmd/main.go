@@ -39,9 +39,11 @@ func initialize() *models.DBConn {
 		pokemon := client.PokemonReceiver{Endpoint: PokemonEndpoint}
 
 		// fetch api data
+		log.Println("Fetching API data")
 		err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
 		handleError(err)
 		
+		log.Println("Populating database")
 		err = db.PopulateDB(&ability, &moves, &pokemon)
 		handleError(err)
 	}
