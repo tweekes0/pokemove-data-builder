@@ -55,7 +55,7 @@ func (m *MovesModel) BulkInsert(moves []interface{}) error {
 	return nil
 }
 
-func (m *MovesModel) RelationBulkInsert(rels []interface{}) error {
+func (m *MovesModel) RelationsBulkInsert(rels []interface{}) error {
 	return nil
 }
 
