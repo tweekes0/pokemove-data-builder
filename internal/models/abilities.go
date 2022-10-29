@@ -37,20 +37,7 @@ type AbilityJoinRow struct {
 	Hidden      bool   `json:"hidden"`
 }
 
-func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
-	_, err := m.DB.Exec(
-		abilityInsert,
-		a.AbilityID, a.Name, a.Description, a.Generation,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *AbilitiesModel) AbilityBulkInsert(ab []client.PokemonAbility) error {
+func (m *AbilitiesModel) BulkInsert(ab []interface{}) error {
 	tblInfo := []string{
 		"pokemon_abilities", "ability_id", "name", "description", "generation",
 	}
@@ -58,7 +45,10 @@ func (m *AbilitiesModel) AbilityBulkInsert(ab []client.PokemonAbility) error {
 
 	for _, a := range ab {
 		_, err := stmt.Exec(
-			a.AbilityID, a.Name, a.Description, a.Generation,
+			a.(client.PokemonAbility).AbilityID, 
+			a.(client.PokemonAbility).Name, 
+			a.(client.PokemonAbility).Description,
+			a.(client.PokemonAbility).Generation,
 		)
 
 		if err != nil {
@@ -67,6 +57,45 @@ func (m *AbilitiesModel) AbilityBulkInsert(ab []client.PokemonAbility) error {
 	}
 
 	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AbilitiesModel) RelationsBulkInsert(rels []interface{}) error {
+
+	tblInfo := []string{
+		"pokemon_ability_rels", "poke_id", "ability_id", "slot", "hidden",
+	}
+	stmt, teardown := transactionSetup(m.DB, tblInfo)
+
+	for _, rel := range rels {
+		_, err := stmt.Exec(
+			rel.(client.PokemonAbilityRelation).PokeID, 
+			rel.(client.PokemonAbilityRelation).AbilityID, 
+			rel.(client.PokemonAbilityRelation).Slot, 
+			rel.(client.PokemonAbilityRelation).Hidden,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AbilitiesModel) AbilityInsert(a client.PokemonAbility) error {
+	_, err := m.DB.Exec(
+		abilityInsert,
+		a.AbilityID, a.Name, a.Description, a.Generation,
+	)
+
+	if err != nil {
 		return err
 	}
 
@@ -111,28 +140,6 @@ func (m *AbilitiesModel) AbilityGetAll() ([]*client.PokemonAbility, error) {
 	}
 
 	return abs, nil
-}
-
-func (m *AbilitiesModel) AbilityRelationsBulkInsert(
-	rels []client.PokemonAbilityRelation) error {
-
-	tblInfo := []string{
-		"pokemon_ability_rels", "poke_id", "ability_id", "slot", "hidden",
-	}
-	stmt, teardown := transactionSetup(m.DB, tblInfo)
-
-	for _, rel := range rels {
-		_, err := stmt.Exec(rel.PokeID, rel.AbilityID, rel.Slot, rel.Hidden)
-		if err != nil {
-			return err
-		}
-	}
-
-	if err := teardown(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (m *AbilitiesModel) PokemonAbilitiesJoin(pokeID int) ([]*AbilityJoinRow, error) {

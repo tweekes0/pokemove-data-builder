@@ -27,21 +27,7 @@ type MovesModel struct {
 	DB *sql.DB
 }
 
-func (m *MovesModel) MoveInsert(mv client.PokemonMove) error {
-	_, err := m.DB.Exec(
-		moveInsert,
-		mv.MoveID, mv.Name, mv.Accuracy, mv.Power, mv.PowerPoints,
-		mv.Generation, mv.Type, mv.DamageType, mv.Description,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PokemonModel) MoveBulkInsert(moves []client.PokemonMove) error {
+func (m *MovesModel) BulkInsert(moves []interface{}) error {
 	tblInfo := []string{
 		"pokemon_moves", "move_id", "name", "accuracy",
 		"power", "power_points", "generation", "type", "damage_type",
@@ -51,8 +37,11 @@ func (m *PokemonModel) MoveBulkInsert(moves []client.PokemonMove) error {
 
 	for _, mv := range moves {
 		_, err := stmt.Exec(
-			mv.MoveID, mv.Name, mv.Accuracy, mv.Power, mv.PowerPoints,
-			mv.Generation, mv.Type, mv.DamageType, mv.Description,
+			mv.(client.PokemonMove).MoveID, mv.(client.PokemonMove).Name, 
+			mv.(client.PokemonMove).Accuracy, mv.(client.PokemonMove).Power, 
+			mv.(client.PokemonMove).PowerPoints, mv.(client.PokemonMove).Generation, 
+			mv.(client.PokemonMove).Type, mv.(client.PokemonMove).DamageType, 
+			mv.(client.PokemonMove).Description,
 		)
 		if err != nil {
 			return err
@@ -60,6 +49,24 @@ func (m *PokemonModel) MoveBulkInsert(moves []client.PokemonMove) error {
 	}
 
 	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovesModel) RelationBulkInsert(rels []interface{}) error {
+	return nil
+}
+
+func (m *MovesModel) MoveInsert(mv client.PokemonMove) error {
+	_, err := m.DB.Exec(
+		moveInsert,
+		mv.MoveID, mv.Name, mv.Accuracy, mv.Power, mv.PowerPoints,
+		mv.Generation, mv.Type, mv.DamageType, mv.Description,
+	)
+
+	if err != nil {
 		return err
 	}
 

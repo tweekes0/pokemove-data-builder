@@ -46,27 +46,59 @@ type MovesJoinRow struct {
 	GameName     string `json:"game_name"`
 }
 
-func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
-	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PokemonModel) PokemonBulkInsert(pokemon []client.Pokemon) error {
+func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 	tblInfo := []string{"pokemon", "poke_id", "name", "sprite", "species"}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
 	for _, p := range pokemon {
-		_, err := stmt.Exec(p.PokeID, p.Name, p.Sprite, p.Species)
+		_, err := stmt.Exec(p.(client.Pokemon).PokeID,
+			p.(client.Pokemon).Name,
+			p.(client.Pokemon).Sprite,
+			p.(client.Pokemon).Species)
 		if err != nil {
 			return err
 		}
 	}
 
 	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PokemonModel) RelationsBulkInsert(rels []interface{}) error {
+	tblInfo := []string{
+		"pokemon_move_rels", "poke_id", "move_id", "generation",
+		"level_learned", "learn_method", "game_name",
+	}
+	stmt, teardown := transactionSetup(m.DB, tblInfo)
+
+	for _, rel := range rels {
+		_, err := stmt.Exec(
+			rel.(client.PokemonMoveRelation).PokeID, 
+			rel.(client.PokemonMoveRelation).MoveID, 
+			rel.(client.PokemonMoveRelation).Generation,
+			rel.(client.PokemonMoveRelation).LevelLearned,
+			rel.(client.PokemonMoveRelation).LearnMethod, 
+			rel.(client.PokemonMoveRelation).GameName,
+		)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := teardown(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
+	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species)
+	if err != nil {
 		return err
 	}
 
@@ -141,31 +173,6 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	}
 
 	return pokemon, nil
-}
-
-func (m *PokemonModel) MoveRelationsBulkInsert(rels []client.PokemonMoveRelation) error {
-	tblInfo := []string{
-		"pokemon_move_rels", "poke_id", "move_id", "generation",
-		"level_learned", "learn_method", "game_name",
-	}
-	stmt, teardown := transactionSetup(m.DB, tblInfo)
-
-	for _, rel := range rels {
-		_, err := stmt.Exec(
-			rel.PokeID, rel.MoveID, rel.Generation, rel.LevelLearned,
-			rel.LearnMethod, rel.GameName,
-		)
-
-		if err != nil {
-			return err
-		}
-	}
-
-	if err := teardown(); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) ([]*MovesJoinRow, error) {
