@@ -26,7 +26,7 @@ func handleError(err error) {
 	}
 }
 
-func initialize() *models.DBConn {
+func initializeDB() *models.DBConn {
 	db, err := models.NewDBConn()
 	handleError(err)
 
@@ -52,11 +52,10 @@ func initialize() *models.DBConn {
 }
 
 func main() {
-	db := initialize()
+	db := initializeDB()
 
 	gin.SetMode(gin.ReleaseMode)
-	srv := server.NewHttpServer()
-	server.SetupRoutes(srv, db)
+	srv := server.NewHttpServer(db)
 
 	log.Printf("Server running on port: %v\n", ListenPort)
 	srv.Run(fmt.Sprintf(":%v", ListenPort))

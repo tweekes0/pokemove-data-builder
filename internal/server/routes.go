@@ -8,7 +8,7 @@ import (
 	"github.com/tweekes0/pokemonmoves-backend/internal/models"
 )
 
-func indexHandler() gin.HandlerFunc {
+func (s *httpServer) indexHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "index page =D",
@@ -16,25 +16,32 @@ func indexHandler() gin.HandlerFunc {
 	}
 }
 
-func getPokemon(db *models.DBConn) gin.HandlerFunc {
+func (s *httpServer) getPokemon() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		ok := c.MustGet("all").(bool)
+		id := c.MustGet("id").(int)
 
-		if ok {
-			p, err := db.PokemonGetAll()
+		p, err := s.DBConn.PokemonGet(id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
+
+			return
+		}
+
+		var mv []*models.MovesJoinRow
+		if p.OriginGen != 0 {
+			mv, err = s.DBConn.PokemonMovesJoinByGen(id, p.OriginGen)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": "internal server error",
 				})
+	
+				return
 			}
-
-			c.JSON(http.StatusOK, gin.H{
-				"data": p,
-			})
 		}
 
-		id := c.MustGet("id").(int)
-		p, err := db.PokemonGet(id)
+		ab, err := s.DBConn.PokemonAbilitiesJoin(id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "internal server error",
@@ -45,30 +52,45 @@ func getPokemon(db *models.DBConn) gin.HandlerFunc {
 
 		c.JSON(http.StatusOK, gin.H{
 			"pokemon": p,
+			"moves": mv,
+			"abilities": ab,
 		})
 	}
 
 	return gin.HandlerFunc(fn)
 }
 
-func validateID(db *models.DBConn) gin.HandlerFunc {
+func (s *httpServer) getAllPokemon() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		if c.Query("id") == "" {
-			c.Set("all", true)
+		p, err := s.DBConn.PokemonGetAll()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "internal server error",
+			})
+
 			return
 		}
 
-		id, err := strconv.Atoi(c.Query("id"))
+		c.JSON(http.StatusOK, gin.H {
+			"data": p,
+		})
+	}
+		
+	return gin.HandlerFunc(fn)
+}
+
+func (s *httpServer) validateID() gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"error": "invalid id, id must be int",
 			})
 
 			return
-
 		}
 
-		ok, err := db.PokemonExists(id)
+		ok, err := s.DBConn.PokemonExists(id)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": "internal server error",
@@ -86,7 +108,6 @@ func validateID(db *models.DBConn) gin.HandlerFunc {
 		}
 
 		c.Set("id", id)
-		c.Set("all", false)
 		c.Next()
 	}
 

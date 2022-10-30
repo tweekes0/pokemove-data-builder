@@ -6,16 +6,22 @@ import (
 )
 
 type httpServer struct {
+	*models.DBConn
 	*gin.Engine
 }
 
-func NewHttpServer() *httpServer {
-	return &httpServer{
+func NewHttpServer(db *models.DBConn) *httpServer {
+	srv := &httpServer{
+		db,
 		gin.Default(),
 	}
+	
+	srv.SetupRoutes()	
+	return srv 
 } 
 
-func SetupRoutes(srv *httpServer, db *models.DBConn) {
-	srv.GET("/", indexHandler())
-	srv.GET("/pokemon", validateID(db), getPokemon(db))
+func (s *httpServer) SetupRoutes() {
+	s.GET("/", s.indexHandler())
+	s.GET("/pokemon", s.getAllPokemon())
+	s.GET("/pokemon/:id", s.validateID(), s.getPokemon())
 }
