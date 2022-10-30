@@ -21,7 +21,7 @@ func NewHttpServer(db *models.DBConn) *httpServer {
 } 
 
 func (s *httpServer) SetupRoutes() {
-	s.GET("/", s.indexHandler())
-	s.GET("/pokemon", s.getAllPokemon())
-	s.GET("/pokemon/:query", s.validateParam(), s.getPokemonByID())
+	s.GET("/", s.indexHandler)
+	s.GET("/pokemon", s.getAllPokemon)
+	s.GET("/pokemon/:query", s.validateParam, s.getPokemonByID)
 }
