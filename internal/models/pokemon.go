@@ -60,7 +60,7 @@ func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 			p.(client.Pokemon).Species,
 			p.(client.Pokemon).OriginGen,
 		)
-		
+
 		if err != nil {
 			return err
 		}
@@ -143,7 +143,9 @@ func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
 
-	err := m.DB.QueryRow(pokemonGetByID, pokeID).Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species)
+	err := m.DB.QueryRow(pokemonGetByID, pokeID).Scan(
+		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrDoesNotExist
