@@ -41,11 +41,12 @@ func (p PokemonMoveRelation) ToSlice() []string {
 
 // struct for pokemon
 type Pokemon struct {
-	PokeID  int    `json:"poke_id"`
-	Name    string `json:"name"`
-	Sprite  string `json:"sprite"`
-	Species string `json:"species"`
-	Moves   []move `json:"-"`
+	PokeID    int    `json:"poke_id"`
+	OriginGen int    `json:"generation"`
+	Name      string `json:"name"`
+	Sprite    string `json:"sprite"`
+	Species   string `json:"species"`
+	Moves     []move `json:"-"`
 }
 
 func (p Pokemon) GetHeader() []string {
@@ -72,6 +73,7 @@ func (p Pokemon) ToSlice() []string {
 func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 	var p Pokemon
 	p.PokeID = data.ID
+	p.OriginGen = getOriginGeneration(data.ID)
 	p.Name = data.Name
 	p.Species = data.Species.Name
 	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault

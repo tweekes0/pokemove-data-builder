@@ -8,12 +8,12 @@ import (
 )
 
 const (
-	pokemonInsert = `INSERT INTO pokemon(poke_id, name, sprite, species) 
-	VALUES ($1, $2, $3, $4)`
+	pokemonInsert = `INSERT INTO pokemon(poke_id, name, sprite, species, origin_gen) 
+	VALUES ($1, $2, $3, $4 $5)`
 	pokemonDelete    = `DELETE FROM pokemon WHERE poke_id = $1`
-	pokemonGetByID   = `SELECT poke_id, name, sprite, species FROM pokemon WHERE poke_id = $1`
-	pokemonGetByName = `SELECT poke_id, name, sprite, species FROM pokemon WHERE name = $1`
-	pokemonGetAll    = `SELECT poke_id, name, sprite, species FROM pokemon`
+	pokemonGetByID   = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon WHERE poke_id = $1`
+	pokemonGetByName = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon WHERE name = $1`
+	pokemonGetAll    = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon`
 	pokemonExists    = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
 	pokemonMovesJoin = `
 	SELECT DISTINCT 
@@ -47,14 +47,20 @@ type MovesJoinRow struct {
 }
 
 func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
-	tblInfo := []string{"pokemon", "poke_id", "name", "sprite", "species"}
+	tblInfo := []string{
+		"pokemon", "poke_id", "name", "sprite", "species", "origin_gen",
+	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
 	for _, p := range pokemon {
-		_, err := stmt.Exec(p.(client.Pokemon).PokeID,
+		_, err := stmt.Exec(
+			p.(client.Pokemon).PokeID,
 			p.(client.Pokemon).Name,
 			p.(client.Pokemon).Sprite,
-			p.(client.Pokemon).Species)
+			p.(client.Pokemon).Species,
+			p.(client.Pokemon).OriginGen,
+		)
+		
 		if err != nil {
 			return err
 		}
@@ -97,7 +103,7 @@ func (m *PokemonModel) RelationsBulkInsert(rels []interface{}) error {
 }
 
 func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
-	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species)
+	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species, p.OriginGen)
 	if err != nil {
 		return err
 	}
@@ -161,7 +167,8 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	for rows.Next() {
 		p := &client.Pokemon{}
 
-		if err = rows.Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species); err != nil {
+		err = rows.Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen)
+		if err != nil {
 			return nil, err
 		}
 
