@@ -82,11 +82,11 @@ func (m *PokemonModel) RelationsBulkInsert(rels []interface{}) error {
 
 	for _, rel := range rels {
 		_, err := stmt.Exec(
-			rel.(client.PokemonMoveRelation).PokeID, 
-			rel.(client.PokemonMoveRelation).MoveID, 
+			rel.(client.PokemonMoveRelation).PokeID,
+			rel.(client.PokemonMoveRelation).MoveID,
 			rel.(client.PokemonMoveRelation).Generation,
 			rel.(client.PokemonMoveRelation).LevelLearned,
-			rel.(client.PokemonMoveRelation).LearnMethod, 
+			rel.(client.PokemonMoveRelation).LearnMethod,
 			rel.(client.PokemonMoveRelation).GameName,
 		)
 
@@ -144,6 +144,23 @@ func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
 
 	err := m.DB.QueryRow(pokemonGetByID, pokeID).Scan(
+		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrDoesNotExist
+		}
+
+		return nil, err
+	}
+
+	return p, nil
+}
+
+func (m *PokemonModel) PokemonGetByName(name string) (*client.Pokemon, error) {
+	p := &client.Pokemon{}
+
+	err := m.DB.QueryRow(pokemonGetByName, name).Scan(
 		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
 	)
 	if err != nil {
