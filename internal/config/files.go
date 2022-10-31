@@ -17,6 +17,7 @@ var (
 )
 
 type DBConfig struct {
+	DBHost     string `toml:"DatbaseHost"`
 	DBName     string `toml:"DatabaseName"`
 	DBUser     string `toml:"DatabaseUser"`
 	DBPassword string `toml:"DatabasePassword"`
@@ -39,8 +40,8 @@ func ReadDBConfig() (*DBConfig, error) {
 
 func (c *DBConfig) GetDBN() string {
 	return fmt.Sprintf(
-		"dbname=%v user=%v password=%v sslmode=%v",
-		c.DBName, c.DBUser, c.DBPassword, c.SSLEnabled,
+		"dbname=%v user=%v password=%v sslmode=%v host=%v",
+		c.DBName, c.DBUser, c.DBPassword, c.SSLEnabled, c.DBHost,
 	)
 }
 
