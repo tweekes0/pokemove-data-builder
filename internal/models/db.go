@@ -27,7 +27,7 @@ func (c *DBConn) getModels() []Model {
 }
 
 func NewDBConn() (*DBConn, error) {
-	conf, err := config.ReadDBConfig()
+	conf, err := config.LoadDBConfig()
 	if err != nil {
 		return nil, err
 	}

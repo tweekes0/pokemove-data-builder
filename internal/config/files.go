@@ -2,38 +2,25 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
-
-	"github.com/BurntSushi/toml"
-)
-
-const (
-	configFolder = "./conf"
-)
-
-var (
-	DBFile = configFile("db.toml")
+	"os"
 )
 
 type DBConfig struct {
-	DBHost     string `toml:"DatbaseHost"`
-	DBName     string `toml:"DatabaseName"`
-	DBUser     string `toml:"DatabaseUser"`
-	DBPassword string `toml:"DatabasePassword"`
-	SSLEnabled string `toml:"SSLEnabled"`
+	DBHost     string 
+	DBName     string 
+	DBUser     string 
+	DBPassword string 
+	SSLEnabled string 
 }
 
-func ReadDBConfig() (*DBConfig, error) {
-	f, err := ioutil.ReadFile(DBFile)
-	if err != nil {
-		return nil, err
-	}
-
+func LoadDBConfig() (*DBConfig, error) {
 	var c DBConfig
-	if err = toml.Unmarshal(f, &c); err != nil {
-		return nil, err
-	}
+
+	c.DBName = os.Getenv("POSTGRES_DB")
+	c.DBHost = os.Getenv("DATABASE_HOST")
+	c.DBUser = os.Getenv("POSTGRES_USER")
+	c.DBPassword = os.Getenv("POSTGRES_PASSWORD")
+	c.SSLEnabled = "disable"
 
 	return &c, nil
 }
@@ -43,8 +30,4 @@ func (c *DBConfig) GetDBN() string {
 		"dbname=%v user=%v password=%v sslmode=%v host=%v",
 		c.DBName, c.DBUser, c.DBPassword, c.SSLEnabled, c.DBHost,
 	)
-}
-
-func configFile(filename string) string {
-	return filepath.Join(configFolder, filename)
 }
