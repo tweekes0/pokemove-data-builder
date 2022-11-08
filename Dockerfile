@@ -11,5 +11,4 @@ RUN apk --no-cache add ca-certificates \
   && update-ca-certificates
 WORKDIR /pokemoves-server/
 COPY --from=builder /usr/local/bin/server ./
-# COPY --from=builder /usr/local/go/src/pokemoves-backend/src/internal/conf ./conf
 ENTRYPOINT [ "./server" ] 
