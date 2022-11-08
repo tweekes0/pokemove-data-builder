@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
-	"github.com/tweekes0/pokemonmoves-backend/internal/models"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/models"
 )
 
 func (s *httpServer) indexHandler(c *gin.Context) {

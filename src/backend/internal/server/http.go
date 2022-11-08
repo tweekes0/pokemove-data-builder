@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/tweekes0/pokemonmoves-backend/internal/models"
+	"github.com/tweekes0/pokemoves/src/backend/internal/models"
 )
 
 type httpServer struct {
@@ -15,10 +15,10 @@ func NewHttpServer(db *models.DBConn) *httpServer {
 		db,
 		gin.Default(),
 	}
-	
-	srv.SetupRoutes()	
-	return srv 
-} 
+
+	srv.SetupRoutes()
+	return srv
+}
 
 func (s *httpServer) SetupRoutes() {
 	s.GET("/", s.indexHandler)

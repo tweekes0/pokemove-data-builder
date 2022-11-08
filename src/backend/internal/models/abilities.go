@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
 )
 
 const (
@@ -45,8 +45,8 @@ func (m *AbilitiesModel) BulkInsert(ab []interface{}) error {
 
 	for _, a := range ab {
 		_, err := stmt.Exec(
-			a.(client.PokemonAbility).AbilityID, 
-			a.(client.PokemonAbility).Name, 
+			a.(client.PokemonAbility).AbilityID,
+			a.(client.PokemonAbility).Name,
 			a.(client.PokemonAbility).Description,
 			a.(client.PokemonAbility).Generation,
 		)
@@ -72,9 +72,9 @@ func (m *AbilitiesModel) RelationsBulkInsert(rels []interface{}) error {
 
 	for _, rel := range rels {
 		_, err := stmt.Exec(
-			rel.(client.PokemonAbilityRelation).PokeID, 
-			rel.(client.PokemonAbilityRelation).AbilityID, 
-			rel.(client.PokemonAbilityRelation).Slot, 
+			rel.(client.PokemonAbilityRelation).PokeID,
+			rel.(client.PokemonAbilityRelation).AbilityID,
+			rel.(client.PokemonAbilityRelation).Slot,
 			rel.(client.PokemonAbilityRelation).Hidden,
 		)
 		if err != nil {

@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
 )
 
 const (
@@ -37,10 +37,10 @@ func (m *MovesModel) BulkInsert(moves []interface{}) error {
 
 	for _, mv := range moves {
 		_, err := stmt.Exec(
-			mv.(client.PokemonMove).MoveID, mv.(client.PokemonMove).Name, 
-			mv.(client.PokemonMove).Accuracy, mv.(client.PokemonMove).Power, 
-			mv.(client.PokemonMove).PowerPoints, mv.(client.PokemonMove).Generation, 
-			mv.(client.PokemonMove).Type, mv.(client.PokemonMove).DamageType, 
+			mv.(client.PokemonMove).MoveID, mv.(client.PokemonMove).Name,
+			mv.(client.PokemonMove).Accuracy, mv.(client.PokemonMove).Power,
+			mv.(client.PokemonMove).PowerPoints, mv.(client.PokemonMove).Generation,
+			mv.(client.PokemonMove).Type, mv.(client.PokemonMove).DamageType,
 			mv.(client.PokemonMove).Description,
 		)
 		if err != nil {
@@ -54,7 +54,6 @@ func (m *MovesModel) BulkInsert(moves []interface{}) error {
 
 	return nil
 }
-
 
 func (m *MovesModel) RelationsBulkInsert(rels []interface{}) error {
 	return nil

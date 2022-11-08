@@ -1,4 +1,4 @@
-module github.com/tweekes0/pokemonmoves-backend
+module github.com/tweekes0/pokemoves
 
 go 1.18
 

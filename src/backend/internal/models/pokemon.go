@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
 )
 
 const (

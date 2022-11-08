@@ -3,8 +3,8 @@ package models
 import (
 	"database/sql"
 
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
-	"github.com/tweekes0/pokemonmoves-backend/internal/config"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/config"
 )
 
 const (
@@ -45,7 +45,7 @@ func NewDBConn() (*DBConn, error) {
 	}, nil
 }
 
-func (c *DBConn) CheckDB() (bool, error) {	
+func (c *DBConn) CheckDB() (bool, error) {
 	var count int
 
 	if err := c.QueryRow(countQuery).Scan(&count); err != nil {

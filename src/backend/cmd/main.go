@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/tweekes0/pokemonmoves-backend/internal/client"
-	"github.com/tweekes0/pokemonmoves-backend/internal/models"
-	"github.com/tweekes0/pokemonmoves-backend/internal/server"
+	"github.com/tweekes0/pokemoves/src/backend/internal/client"
+	"github.com/tweekes0/pokemoves/src/backend/internal/models"
+	"github.com/tweekes0/pokemoves/src/backend/internal/server"
 )
 
 const (
@@ -42,7 +42,7 @@ func initializeDB() *models.DBConn {
 		log.Println("Fetching API data")
 		err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
 		handleError(err)
-		
+
 		log.Println("Populating database")
 		err = db.PopulateDB(&ability, &moves, &pokemon)
 		handleError(err)
