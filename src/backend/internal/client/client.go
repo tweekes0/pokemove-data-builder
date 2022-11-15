@@ -40,6 +40,16 @@ type basicResponse struct {
 	Results []namedResource `json:"results"`
 }
 
+// struct for pokeapi Pokemon endpoint response
+type AbilityResponse struct {
+	ID          int              `json:"id"`
+	Name        string           `json:"name"`
+	MainSeries  bool             `json:"is_main_series"`
+	Generation  namedResource    `json:"generation"`
+	FlavorTexts []flavorText     `json:"flavor_text_entries"`
+	Pokemon     []pokemonAbility `json:"pokemon"`
+}
+
 // struct for pokeapi Moves endpoint response
 type MoveResponse struct {
 	ID               int             `json:"id"`
@@ -53,6 +63,18 @@ type MoveResponse struct {
 	LearnedByPokemon []namedResource `json:"learned_by_pokemon"`
 	FlavorTexts      []flavorText    `json:"flavor_text_entries"`
 	PastValues       []pastMoveValue `json:"past_values"`
+}
+
+// struct for pokeapi Pokemon endpoint response
+type PokemonResponse struct {
+	ID        int               `json:"id"`
+	Name      string            `json:"name"`
+	Species   namedResource     `json:"species"`
+	Sprite    pokemonSprite     `json:"sprites"`
+	Abilities []pokemonAbility  `json:"abilities"`
+	Moves     []move            `json:"moves"`
+	Types     []pokemonType     `json:"types"`
+	PastTypes []pokemonTypePast `json:"past_types"`
 }
 
 // struct for pokeapi pokemon ability
@@ -70,6 +92,18 @@ type pokemonSprite struct {
 	Other        map[string]pokemonSprite `json:"other"`
 }
 
+// struct for pokeapi pokemon type
+// https://pokeapi.co/docs/v2#pokemonsprites
+type pokemonType struct {
+	Slot int           `json:"slot"`
+	Type namedResource `json:"type"`
+}
+
+type pokemonTypePast struct {
+	Generation namedResource `json:"generation"`
+	Types      []pokemonType `json:"types"`
+}
+
 // struct for pokeapi version group details for learned moves
 // https://pokeapi.co/docs/v2#pokemonmoveversion
 type versionGroupDetails struct {
@@ -83,26 +117,6 @@ type versionGroupDetails struct {
 type move struct {
 	Name    namedResource         `json:"move"`
 	Details []versionGroupDetails `json:"version_group_details"`
-}
-
-// struct for pokeapi Pokemon endpoint response
-type PokemonResponse struct {
-	ID        int              `json:"id"`
-	Name      string           `json:"name"`
-	Species   namedResource    `json:"species"`
-	Sprite    pokemonSprite    `json:"sprites"`
-	Abilities []pokemonAbility `json:"abilities"`
-	Moves     []move           `json:"moves"`
-}
-
-// struct for pokeapi Pokemon endpoint response
-type AbilityResponse struct {
-	ID          int              `json:"id"`
-	Name        string           `json:"name"`
-	MainSeries  bool             `json:"is_main_series"`
-	Generation  namedResource    `json:"generation"`
-	FlavorTexts []flavorText     `json:"flavor_text_entries"`
-	Pokemon     []pokemonAbility `json:"pokemon"`
 }
 
 func getResponse(url string) ([]byte, error) {
