@@ -15,37 +15,48 @@ func (s *httpServer) indexHandler(c *gin.Context) {
 	})
 }
 
-func (s *httpServer) getPokemonByID(c *gin.Context) {
-	byName := c.MustGet("name").(bool)
+func (s *httpServer) getPokemon(gen... int) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var g int
+		if len(gen) == 0 {
+			g = client.CurrentGen
+		} else {
+			g = gen[0]
+		}
 
-	var p *client.Pokemon
-	var err error
+		byName := c.MustGet("name").(bool)
 
-	if byName {
-		p, err = s.DBConn.PokemonGetByName(c.Param("query"))
-	} else {
-		p, err = s.DBConn.PokemonGet(c.MustGet("id").(int))
-	}
+		var p *client.Pokemon
+		var err error
 
-	handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
-		false)
+		if byName {
+			p, err = s.DBConn.PokemonGetByName(c.Param("query"), g)
+		} else {
+			p, err = s.DBConn.PokemonGet(c.MustGet("id").(int), g)
+		}
 
-	var mv []*models.MovesJoinRow
-	if p.OriginGen != 0 {
-		mv, err = s.DBConn.PokemonMovesJoinByGen(p.PokeID, p.OriginGen)
 		handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
 			false)
+
+		var mv []*models.MovesJoinRow
+		if p.OriginGen != 0 {
+			mv, err = s.DBConn.PokemonMovesJoinByGen(p.PokeID, p.OriginGen)
+			handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
+				false)
+		}
+
+		ab, err := s.DBConn.PokemonAbilitiesJoin(p.PokeID)
+		handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
+			false)
+
+		c.JSON(http.StatusOK, gin.H{
+			"pokemon":   p,
+			"moves":     mv,
+			"abilities": ab,
+		})
 	}
 
-	ab, err := s.DBConn.PokemonAbilitiesJoin(p.PokeID)
-	handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
-		false)
-
-	c.JSON(http.StatusOK, gin.H{
-		"pokemon":   p,
-		"moves":     mv,
-		"abilities": ab,
-	})
+	return gin.HandlerFunc(fn)
 }
 
 func (s *httpServer) getAllPokemon(c *gin.Context) {

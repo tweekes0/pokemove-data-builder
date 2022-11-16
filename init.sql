@@ -1,10 +1,13 @@
 CREATE TABLE pokemon (
-    id SERIAL NOT NULL,
-    poke_id INTEGER UNIQUE CONSTRAINT "unique poke_id" PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
+    poke_id INTEGER,
     origin_gen INTEGER NOT NULL,
+    gen_of_type_change INTEGER,
     name TEXT NOT NULL,
     sprite TEXT,
-    species TEXT NOT NULL
+    species TEXT NOT NULL,
+    primary_type TEXT NOT NULL,
+    secondary_type TEXT
 );
 
 CREATE TABLE pokemon_moves (

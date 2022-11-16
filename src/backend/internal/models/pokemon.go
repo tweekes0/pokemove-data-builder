@@ -8,22 +8,36 @@ import (
 )
 
 const (
-	pokemonInsert = `INSERT INTO pokemon(poke_id, name, sprite, species, origin_gen) 
-	VALUES ($1, $2, $3, $4 $5)`
-	pokemonDelete    = `DELETE FROM pokemon WHERE poke_id = $1`
-	pokemonGetByID   = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon WHERE poke_id = $1`
-	pokemonGetByName = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon WHERE name = $1`
-	pokemonGetAll    = `SELECT poke_id, name, sprite, species, origin_gen FROM pokemon`
-	pokemonExists    = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
+	pokemonExists  = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
+	pokemonGetByID = `
+	SELECT 
+		poke_id, name, sprite, species, origin_gen, primary_type, secondary_type 
+	FROM pokemon WHERE poke_id = $1 and gen_of_type_change >= $2
+	`
+	pokemonGetByName = `
+	SELECT 
+		poke_id, name, sprite, species, origin_gen, primary_type, secondary_type 
+	FROM pokemon WHERE name = $1 AND gen_of_type_change >= $2 
+	`
+	pokemonGetAll = `
+	SELECT DISTINCT ON (poke_id)
+		poke_id, name, sprite, species, origin_gen,
+		primary_type, secondary_type 
+	FROM pokemon ORDER BY poke_id;
+	`
 	pokemonMovesJoin = `
-	SELECT DISTINCT 
-	pm.move_id, pm.name, pm.accuracy, pm.power, pm.power_points,
-	pm.type, pm.damage_type, pm.description,  
-	pmr.learn_method, pmr.level_learned, pmr.game_name, pmr.generation
-	FROM pokemon p 
-	JOIN pokemon_move_rels pmr ON p.poke_id = pmr.poke_id
-	JOIN pokemon_moves pm ON pm.move_id = pmr.move_id
-	WHERE p.poke_id = $1 and pmr.generation = $2;
+	SELECT
+		pm.move_id, pm.name, pm.accuracy, pm.power, pm.power_points,
+		pm.type, pm.damage_type, pm.description,  
+		pmr.learn_method, pmr.level_learned, pmr.game_name, pm.generation
+	FROM pokemon_move_rels pmr
+	JOIN pokemon p ON p.poke_id = pmr.poke_id
+	JOIN (
+		select distinct on (move_id) pm.* from pokemon_moves pm 
+		where generation <= $1
+		order by move_id, generation desc
+	) pm ON pm.move_id = pmr.move_id 
+	WHERE p.poke_id = $2 and pmr.generation = $3 
 	`
 )
 
@@ -49,6 +63,7 @@ type MovesJoinRow struct {
 func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 	tblInfo := []string{
 		"pokemon", "poke_id", "name", "sprite", "species", "origin_gen",
+		"gen_of_type_change", "primary_type", "secondary_type",
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
@@ -59,6 +74,9 @@ func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 			p.(client.Pokemon).Sprite,
 			p.(client.Pokemon).Species,
 			p.(client.Pokemon).OriginGen,
+			p.(client.Pokemon).GenTypeChange,
+			p.(client.Pokemon).PrimaryType,
+			p.(client.Pokemon).SecondaryType,
 		)
 
 		if err != nil {
@@ -102,33 +120,6 @@ func (m *PokemonModel) RelationsBulkInsert(rels []interface{}) error {
 	return nil
 }
 
-func (m *PokemonModel) PokemonInsert(p client.Pokemon) error {
-	_, err := m.DB.Exec(pokemonInsert, p.PokeID, p.Name, p.Sprite, p.Species, p.OriginGen)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PokemonModel) PokemonDelete(pokeID int) error {
-	res, err := m.DB.Exec(pokemonDelete, pokeID)
-	if err != nil {
-		return err
-	}
-
-	c, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if int(c) == 0 {
-		return ErrDoesNotExist
-	}
-
-	return nil
-}
-
 func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 	var e bool
 
@@ -140,12 +131,14 @@ func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 	return e, nil
 }
 
-func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
+func (m *PokemonModel) PokemonGet(pokeID, gen int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
 
-	err := m.DB.QueryRow(pokemonGetByID, pokeID).Scan(
+	err := m.DB.QueryRow(pokemonGetByID, pokeID, gen).Scan(
 		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+		&p.PrimaryType, &p.SecondaryType,
 	)
+
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrDoesNotExist
@@ -157,11 +150,12 @@ func (m *PokemonModel) PokemonGet(pokeID int) (*client.Pokemon, error) {
 	return p, nil
 }
 
-func (m *PokemonModel) PokemonGetByName(name string) (*client.Pokemon, error) {
+func (m *PokemonModel) PokemonGetByName(name string, gen int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
 
 	err := m.DB.QueryRow(pokemonGetByName, name).Scan(
 		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+		&p.PrimaryType, &p.SecondaryType,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -186,7 +180,10 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	for rows.Next() {
 		p := &client.Pokemon{}
 
-		err = rows.Scan(&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen)
+		err = rows.Scan(
+			&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+			&p.PrimaryType, &p.SecondaryType,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -204,7 +201,7 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) ([]*MovesJoinRow, error) {
 	mvs := []*MovesJoinRow{}
 
-	rows, err := m.DB.Query(pokemonMovesJoin, pokeID, gen)
+	rows, err := m.DB.Query(pokemonMovesJoin, gen, pokeID, gen)
 	if err != nil {
 		return nil, err
 	}

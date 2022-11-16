@@ -6,6 +6,10 @@ import (
 	"sync"
 )
 
+const (
+	CurrentGen = 9
+)
+
 type PokemonMoveRelation struct {
 	PokeID       int
 	MoveID       int
@@ -41,12 +45,15 @@ func (p PokemonMoveRelation) ToSlice() []string {
 
 // struct for pokemon
 type Pokemon struct {
-	PokeID    int    `json:"poke_id"`
-	OriginGen int    `json:"generation"`
-	Name      string `json:"name"`
-	Sprite    string `json:"sprite"`
-	Species   string `json:"species"`
-	Moves     []move `json:"-"`
+	PokeID        int    `json:"poke_id"`
+	OriginGen     int    `json:"generation"`
+	GenTypeChange int    `json:"-"`
+	Name          string `json:"name"`
+	Sprite        string `json:"sprite"`
+	Species       string `json:"species"`
+	PrimaryType   string `json:"primary_type"`
+	SecondaryType string `json:"secondary_type,omitempty"`
+	Moves         []move `json:"-"`
 }
 
 func (p Pokemon) GetHeader() []string {
@@ -70,7 +77,30 @@ func (p Pokemon) ToSlice() []string {
 }
 
 // struct that receives data from the pokeapi pokemon endpoint
-func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
+func pokemonResponseToStruct(data PokemonResponse, lang string) []Pokemon {
+	var pokes []Pokemon
+
+	if len(data.PastTypes) > 0 {
+		for _, t := range data.PastTypes {
+			var pp Pokemon
+			pp.PokeID = data.ID
+			pp.OriginGen = getOriginGeneration(data.ID)
+			pp.Name = data.Name
+			pp.Species = data.Species.Name
+			pp.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
+			pp.Moves = data.Moves
+			pp.GenTypeChange = getGeneration(t.Generation.Name)
+			pp.PrimaryType = t.Types[0].Type.Name
+			pp.SecondaryType = ""
+
+			if len(t.Types) > 1 {
+				pp.SecondaryType = t.Types[1].Type.Name
+			}
+
+			pokes = append(pokes, pp)
+		}
+	}
+
 	var p Pokemon
 	p.PokeID = data.ID
 	p.OriginGen = getOriginGeneration(data.ID)
@@ -78,20 +108,29 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) Pokemon {
 	p.Species = data.Species.Name
 	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
 	p.Moves = data.Moves
+	p.GenTypeChange = CurrentGen
+	p.PrimaryType = data.Types[0].Type.Name
+	p.SecondaryType = ""
 
-	return p
+	if len(data.Types) > 1 {
+		p.SecondaryType = data.Types[1].Type.Name
+	}
+
+	pokes = append(pokes, p)
+	return pokes
 }
 
 type PokemonReceiver struct {
-	wg        *sync.WaitGroup
-	Entries   []Pokemon
-	Relations []PokemonMoveRelation
-	Endpoint  string
+	wg          *sync.WaitGroup
+	entryMatrix [][]Pokemon
+	Entries     []Pokemon
+	Relations   []PokemonMoveRelation
+	Endpoint    string
 }
 
 func (p *PokemonReceiver) Init(n int) {
 	p.wg = new(sync.WaitGroup)
-	p.Entries = make([]Pokemon, n)
+	p.entryMatrix = make([][]Pokemon, n)
 }
 
 func (p *PokemonReceiver) AddWorker() {
@@ -109,7 +148,19 @@ func (p *PokemonReceiver) GetEndpoint() string {
 // When all data is fetched from api populate
 // pokemon to move relationship slice
 func (p *PokemonReceiver) PostProcess() {
+	for _, entry := range p.entryMatrix {
+		p.Entries = append(p.Entries, entry...)
+	}
+
+	prev := 0
+
 	for _, pokemon := range p.Entries {
+		if prev == pokemon.PokeID {
+			continue
+		}
+
+		prev = pokemon.PokeID
+
 		for _, m := range pokemon.Moves {
 			for _, detail := range m.Details {
 				var meta PokemonMoveRelation
@@ -145,7 +196,7 @@ func (p *PokemonReceiver) FetchEntries(url, lang string, i int) {
 
 	pokemon := pokemonResponseToStruct(resp, lang)
 
-	p.Entries[i] = pokemon
+	p.entryMatrix[i] = pokemon
 }
 
 // Gets the relationship of Move to Pokemon
