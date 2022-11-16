@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -18,6 +19,9 @@ const (
 	APILimit        = 2000
 	ListenPort      = 8080
 	Language        = "en"
+
+	Retries = 5
+	Timeout = time.Millisecond * 1500
 )
 
 func handleError(err error) {
@@ -26,12 +30,16 @@ func handleError(err error) {
 	}
 }
 
-func initializeDB() *models.DBConn {
+func initializeDB() (*models.DBConn, error) {
 	db, err := models.NewDBConn()
-	handleError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	populated, err := db.CheckDB()
-	handleError(err)
+	if err != nil {
+		return nil, err
+	}
 
 	if !populated {
 		ability := client.AbilityReceiver{Endpoint: AbilityEndpoint}
@@ -41,19 +49,37 @@ func initializeDB() *models.DBConn {
 		// fetch api data
 		log.Println("Fetching API data")
 		err := client.FetchData(APILimit, Language, &ability, &moves, &pokemon)
-		handleError(err)
+		if err != nil {
+			return nil, err
+		}
 
 		log.Println("Populating database")
-		err = db.PopulateDB(&ability, &moves, &pokemon)
-		handleError(err)
+		if err = db.PopulateDB(&ability, &moves, &pokemon); err != nil {
+			return nil, err
+		}
 	}
 
-	return db
+	return db, nil
 }
 
 func main() {
-	db := initializeDB()
+	var i int 
+	var db *models.DBConn
+	var err error
 
+	for i = 0; i < Retries; i++ {
+		db, err = initializeDB()
+		if err != nil {
+			time.Sleep(Timeout)
+		} else {
+			break
+		}
+	}
+
+	if i == 5 {
+		handleError(err)
+	}
+	
 	gin.SetMode(gin.ReleaseMode)
 	srv := server.NewHttpServer(db)
 
