@@ -70,16 +70,18 @@ func main() {
 	for i = 0; i < Retries; i++ {
 		db, err = initializeDB()
 		if err != nil {
+			log.Println("Retrying.....")
 			time.Sleep(Timeout)
 		} else {
 			break
 		}
 	}
 
-	if i == 5 {
+	if i == Retries {
+		log.Println("Failed to connect to DB")
 		handleError(err)
 	}
-	
+
 	gin.SetMode(gin.ReleaseMode)
 	srv := server.NewHttpServer(db)
 

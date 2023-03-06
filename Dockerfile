@@ -7,6 +7,7 @@ COPY . ./
 RUN CGO_ENABLED=0 GOARCH=amd64 go build -ldflags="-w -s" -o /usr/local/bin/server ./src/backend/cmd/
 
 FROM alpine:latest
+RUN apk update
 RUN apk --no-cache add ca-certificates \
   && update-ca-certificates
 WORKDIR /pokemoves-server/
