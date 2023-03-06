@@ -56,6 +56,11 @@ type Pokemon struct {
 	Moves         []move `json:"-"`
 }
 
+type PokemonBrief struct {
+	PokeID int    `json:"poke_id"`
+	Name   string `json:"name"`
+}
+
 func (p Pokemon) GetHeader() []string {
 	var header []string
 	header = append(header, "poke-id")

@@ -25,6 +25,7 @@ const (
 		primary_type, secondary_type 
 	FROM pokemon ORDER BY poke_id;
 	`
+	pokemonGetAllBrief = `SELECT poke_id, name FROM pokemon ORDER BY poke_id;`
 	pokemonMovesJoin = `
 	SELECT
 		pm.move_id, pm.name, pm.accuracy, pm.power, pm.power_points,
@@ -196,6 +197,31 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 	}
 
 	return pokemon, nil
+}
+
+func (m *PokemonModel) PokemonGetAllBrief() ([]*client.PokemonBrief, error) {
+	pks :=[]*client.PokemonBrief{}
+
+	rows, err := m.DB.Query(pokemonGetAllBrief)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		pk := &client.PokemonBrief{}
+
+		if err := rows.Scan(&pk.PokeID, &pk.Name); err != nil {
+			return nil, err
+		}
+
+		pks = append(pks, pk)
+	}
+
+	if len(pks) == 0 {
+		return nil, ErrDoesNotExist
+	}
+
+	return pks, nil
 }
 
 func (m *PokemonModel) PokemonMovesJoinByGen(pokeID, gen int) ([]*MovesJoinRow, error) {
