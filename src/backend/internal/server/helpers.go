@@ -10,6 +10,7 @@ import (
 var (
 	ErrInternalServer = errors.New("internal server error")
 	ErrInvalidID = errors.New("invalid id, id must be int")
+	ErrInvalidParam = errors.New("invalid param type")
 	ErrNotFound = errors.New("no record found with that id")
 )
 

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -15,14 +16,9 @@ func (s *httpServer) indexHandler(c *gin.Context) {
 	})
 }
 
-func (s *httpServer) getPokemon(gen... int) gin.HandlerFunc {
+func (s *httpServer) getPokemon(gen ...int) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		var g int
-		if len(gen) == 0 {
-			g = client.CurrentGen
-		} else {
-			g = gen[0]
-		}
+		g := c.MustGet("generation").(int)
 
 		byName := c.MustGet("name").(bool)
 
@@ -40,7 +36,7 @@ func (s *httpServer) getPokemon(gen... int) gin.HandlerFunc {
 
 		var mv []*models.MovesJoinRow
 		if p.OriginGen != 0 {
-			mv, err = s.DBConn.PokemonMovesJoinByGen(p.PokeID, p.OriginGen)
+			mv, err = s.DBConn.PokemonMovesJoinByGen(p.PokeID, g)
 			handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
 				false)
 		}
@@ -70,9 +66,10 @@ func (s *httpServer) getAllPokemon(c *gin.Context) {
 }
 
 func (s *httpServer) validateParam(c *gin.Context) {
-	q := c.Param("query")
+	q1 := c.Param("query")
+	q2 := c.DefaultQuery("gen", fmt.Sprintf("%v", client.CurrentGen))
 
-	if isWord(q) {
+	if isWord(q1) {
 		c.Set("name", true)
 		c.Next()
 		return
@@ -80,7 +77,14 @@ func (s *httpServer) validateParam(c *gin.Context) {
 		c.Set("name", false)
 	}
 
-	id, err := strconv.Atoi(q)
+	gen, err := strconv.Atoi(q2)
+	if err != nil {
+		handleError(c, err, http.StatusBadRequest, ErrInvalidParam.Error(), true)
+	}
+
+	c.Set("generation", gen)
+
+	id, err := strconv.Atoi(q1)
 	handleError(c, err, http.StatusInternalServerError, ErrInvalidID.Error(), true)
 
 	ok, err := s.DBConn.PokemonExists(id)
