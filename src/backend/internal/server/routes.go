@@ -11,7 +11,7 @@ import (
 
 func (s *httpServer) indexHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"message": "index page =D",
+		"message": "index page",
 	})
 }
 
@@ -60,7 +60,7 @@ func (s *httpServer) getPokemon(gen... int) gin.HandlerFunc {
 }
 
 func (s *httpServer) getAllPokemon(c *gin.Context) {
-	p, err := s.DBConn.PokemonGetAll()
+	p, err := s.DBConn.PokemonGetAllBrief()
 	handleError(c, err, http.StatusInternalServerError, ErrInternalServer.Error(),
 		false)
 
