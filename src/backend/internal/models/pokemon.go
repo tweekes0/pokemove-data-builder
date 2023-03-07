@@ -34,9 +34,9 @@ const (
 	FROM pokemon_move_rels pmr
 	JOIN pokemon p ON p.poke_id = pmr.poke_id
 	JOIN (
-		select distinct on (move_id) pm.* from pokemon_moves pm 
-		where generation <= $1
-		order by move_id, generation desc
+		SELECT DISTINCT ON (move_id) pm.* FROM pokemon_moves pm 
+		WHERE generation <= $1
+		ORDER BY move_id, generation desc
 	) pm ON pm.move_id = pmr.move_id 
 	WHERE p.poke_id = $2 and pmr.generation = $3 
 	`
@@ -134,6 +134,10 @@ func (m *PokemonModel) PokemonExists(pokeID int) (bool, error) {
 
 func (m *PokemonModel) PokemonGet(pokeID, gen int) (*client.Pokemon, error) {
 	p := &client.Pokemon{}
+
+	if gen < 0 || gen > client.CurrentGen {
+		gen = client.CurrentGen
+	} 
 
 	err := m.DB.QueryRow(pokemonGetByID, pokeID, gen).Scan(
 		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
