@@ -15,7 +15,7 @@ type namedResource struct {
 }
 
 // struct for pokeapi flavor text entries
-//https://pokeapi.co/docs/v2#moveflavortext
+// https://pokeapi.co/docs/v2#moveflavortext
 type flavorText struct {
 	Text         string        `json:"flavor_text"`
 	Language     namedResource `json:"language"`
@@ -89,6 +89,7 @@ type pokemonAbility struct {
 // https://pokeapi.co/docs/v2#pokemonsprites
 type pokemonSprite struct {
 	FrontDefault string                   `json:"front_default"`
+	FrontShiny   string                   `json:"front_shiny"`
 	Other        map[string]pokemonSprite `json:"other"`
 }
 

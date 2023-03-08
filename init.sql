@@ -5,6 +5,7 @@ CREATE TABLE pokemon (
     gen_of_type_change INTEGER,
     name TEXT NOT NULL,
     sprite TEXT,
+    shiny_sprite TEXT,
     species TEXT NOT NULL,
     primary_type TEXT NOT NULL,
     secondary_type TEXT

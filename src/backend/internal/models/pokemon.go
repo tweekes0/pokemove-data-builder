@@ -11,17 +11,17 @@ const (
 	pokemonExists  = `SELECT EXISTS(SELECT 1 FROM pokemon WHERE id = $1)`
 	pokemonGetByID = `
 	SELECT 
-		poke_id, name, sprite, species, origin_gen, primary_type, secondary_type 
+		poke_id, name, sprite, shiny_sprite, species, origin_gen, primary_type, secondary_type 
 	FROM pokemon WHERE poke_id = $1 and gen_of_type_change >= $2
 	`
 	pokemonGetByName = `
 	SELECT 
-		poke_id, name, sprite, species, origin_gen, primary_type, secondary_type 
+		poke_id, name, sprite, shiny_sprite, species, origin_gen, primary_type, secondary_type 
 	FROM pokemon WHERE name = $1 AND gen_of_type_change >= $2 
 	`
 	pokemonGetAll = `
 	SELECT DISTINCT ON (poke_id)
-		poke_id, name, sprite, species, origin_gen,
+		poke_id, name, sprite, shiny_sprite, species, origin_gen,
 		primary_type, secondary_type 
 	FROM pokemon ORDER BY poke_id;
 	`
@@ -63,8 +63,8 @@ type MovesJoinRow struct {
 
 func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 	tblInfo := []string{
-		"pokemon", "poke_id", "name", "sprite", "species", "origin_gen",
-		"gen_of_type_change", "primary_type", "secondary_type",
+		"pokemon", "poke_id", "name", "sprite", "shiny_sprite", "species",
+		"origin_gen", "gen_of_type_change", "primary_type", "secondary_type",
 	}
 	stmt, teardown := transactionSetup(m.DB, tblInfo)
 
@@ -73,6 +73,7 @@ func (m *PokemonModel) BulkInsert(pokemon []interface{}) error {
 			p.(client.Pokemon).PokeID,
 			p.(client.Pokemon).Name,
 			p.(client.Pokemon).Sprite,
+			p.(client.Pokemon).ShinySprite,
 			p.(client.Pokemon).Species,
 			p.(client.Pokemon).OriginGen,
 			p.(client.Pokemon).GenTypeChange,
@@ -140,7 +141,7 @@ func (m *PokemonModel) PokemonGet(pokeID, gen int) (*client.Pokemon, error) {
 	} 
 
 	err := m.DB.QueryRow(pokemonGetByID, pokeID, gen).Scan(
-		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+		&p.PokeID, &p.Name, &p.Sprite, &p.ShinySprite, &p.Species, &p.OriginGen,
 		&p.PrimaryType, &p.SecondaryType,
 	)
 
@@ -159,7 +160,7 @@ func (m *PokemonModel) PokemonGetByName(name string, gen int) (*client.Pokemon, 
 	p := &client.Pokemon{}
 
 	err := m.DB.QueryRow(pokemonGetByName, name).Scan(
-		&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+		&p.PokeID, &p.Name, &p.Sprite, &p.ShinySprite, &p.Species, &p.OriginGen,
 		&p.PrimaryType, &p.SecondaryType,
 	)
 	if err != nil {
@@ -186,7 +187,7 @@ func (m *PokemonModel) PokemonGetAll() ([]*client.Pokemon, error) {
 		p := &client.Pokemon{}
 
 		err = rows.Scan(
-			&p.PokeID, &p.Name, &p.Sprite, &p.Species, &p.OriginGen,
+			&p.PokeID, &p.Name, &p.Sprite, &p.ShinySprite, &p.Species, &p.OriginGen,
 			&p.PrimaryType, &p.SecondaryType,
 		)
 		if err != nil {

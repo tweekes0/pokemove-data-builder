@@ -50,6 +50,7 @@ type Pokemon struct {
 	GenTypeChange int    `json:"-"`
 	Name          string `json:"name"`
 	Sprite        string `json:"sprite"`
+	ShinySprite   string `json:"shiny_sprite"`
 	Species       string `json:"species"`
 	PrimaryType   string `json:"primary_type"`
 	SecondaryType string `json:"secondary_type,omitempty"`
@@ -93,6 +94,7 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) []Pokemon {
 			pp.Name = data.Name
 			pp.Species = data.Species.Name
 			pp.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
+			pp.ShinySprite = data.Sprite.Other["official-artwork"].FrontShiny
 			pp.Moves = data.Moves
 			pp.GenTypeChange = getGeneration(t.Generation.Name)
 			pp.PrimaryType = t.Types[0].Type.Name
@@ -112,6 +114,7 @@ func pokemonResponseToStruct(data PokemonResponse, lang string) []Pokemon {
 	p.Name = data.Name
 	p.Species = data.Species.Name
 	p.Sprite = data.Sprite.Other["official-artwork"].FrontDefault
+	p.ShinySprite = data.Sprite.Other["official-artwork"].FrontShiny
 	p.Moves = data.Moves
 	p.GenTypeChange = CurrentGen
 	p.PrimaryType = data.Types[0].Type.Name
