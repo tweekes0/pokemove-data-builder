@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  pokemoves-db:
+  db:
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -11,11 +11,11 @@ services:
     ports:
       - "5432:5432"
     volumes:
-    - ./init.sql:/docker-entrypoint-initdb.d/1.sql
+       - ./init.sql:/docker-entrypoint-initdb.d/1.sql
     networks:
-    - app-network
+      - app-network
 
-  pokemoves-server: 
+  server: 
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,9 +27,9 @@ services:
     ports: 
       - "8080:8080" 
     depends_on:
-    - pokemoves-db
+      - db
     networks:
-    - app-network
+      - app-network
     restart: on-failure
 
 networks:
