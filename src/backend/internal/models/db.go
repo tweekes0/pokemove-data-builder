@@ -29,12 +29,13 @@ func (c *DBConn) getModels() []Model {
 
 func getConnectionString() string {
 	return fmt.Sprintf(
-		"dbname=%v host=%v user=%v password=%v sslmode=%v",
-		os.Getenv("POSTGRES_DB"),
-		os.Getenv("DATABASE_HOST"),
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		"disable",
+		"dbname=%v host=%v port=%v user=%v password=%v sslmode=%v",
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("SSL_MODE"),
 	)
 }
 
