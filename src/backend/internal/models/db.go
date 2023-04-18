@@ -2,9 +2,10 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 
 	"github.com/tweekes0/pokemoves/src/backend/internal/client"
-	"github.com/tweekes0/pokemoves/src/backend/internal/config"
 )
 
 const (
@@ -26,13 +27,20 @@ func (c *DBConn) getModels() []Model {
 	}
 }
 
-func NewDBConn() (*DBConn, error) {
-	conf, err := config.LoadDBConfig()
-	if err != nil {
-		return nil, err
-	}
+func getDBN() string {
+	return fmt.Sprintf(
+		"dbname=%v host=%v user=%v password=%v sslmode=%v",
+		os.Getenv("POSTGRES_DB"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		"disable",
+	)
+}
 
-	db, err := sql.Open("postgres", conf.GetDBN())
+func NewDBConn() (*DBConn, error) {
+	connString := getDBN()
+	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
 	}
