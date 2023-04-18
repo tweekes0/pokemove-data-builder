@@ -27,7 +27,7 @@ func (c *DBConn) getModels() []Model {
 	}
 }
 
-func getDBN() string {
+func getConnectionString() string {
 	return fmt.Sprintf(
 		"dbname=%v host=%v user=%v password=%v sslmode=%v",
 		os.Getenv("POSTGRES_DB"),
@@ -39,7 +39,7 @@ func getDBN() string {
 }
 
 func NewDBConn() (*DBConn, error) {
-	connString := getDBN()
+	connString := getConnectionString()
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
